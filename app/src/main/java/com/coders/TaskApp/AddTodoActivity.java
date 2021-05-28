@@ -18,11 +18,13 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.coders.TaskApp.models.Todo;
 import com.coders.TaskApp.Utils.FormatDate;
 import com.coders.TaskApp.Utils.FormatTime;
 import com.coders.TaskApp.Utils.ScheduleNotification;
+import com.coders.TaskApp.models.Todo;
 import com.google.android.material.appbar.MaterialToolbar;
+import com.google.android.material.datepicker.MaterialDatePicker;
+import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.textfield.TextInputLayout;
 
@@ -40,7 +42,7 @@ public class AddTodoActivity extends AppCompatActivity {
     TextInputLayout taskLayout;
     EditText task;
     TextView dueDateText, dateView;
-    DatePickerDialog datePicker;
+    MaterialDatePicker<Long> datePicker;
     TimePickerDialog timePicker;
     RelativeLayout dueDateLayout, setTimeLayout;
     ImageView removeDueDate, removeTime;
@@ -57,11 +59,11 @@ public class AddTodoActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_add_todo);
 
-        Fade fade=new Fade();
-        View decor=getWindow().getDecorView();
-        fade.excludeTarget(decor.findViewById(R.id.action_bar_container),true);
-        fade.excludeTarget(android.R.id.statusBarBackground,true);
-        fade.excludeTarget(saveTask,true);
+        Fade fade = new Fade();
+        View decor = getWindow().getDecorView();
+        fade.excludeTarget(decor.findViewById(R.id.action_bar_container), true);
+        fade.excludeTarget(android.R.id.statusBarBackground, true);
+        fade.excludeTarget(saveTask, true);
         getWindow().setEnterTransition(fade);
         getWindow().setExitTransition(fade);
 
@@ -101,17 +103,19 @@ public class AddTodoActivity extends AppCompatActivity {
             getEditingInfo();
 
 
-        datePicker = new DatePickerDialog(this, new DatePickerDialog.OnDateSetListener() {
+        MaterialDatePicker.Builder<Long> builder=MaterialDatePicker.Builder.datePicker();
+        builder.setTitleText("Choose a date");
+        datePicker=builder.build();
+        datePicker.addOnPositiveButtonClickListener(new MaterialPickerOnPositiveButtonClickListener<Long>() {
             @Override
-            public void onDateSet(DatePicker view, int year, int month, int dayOfMonth) {
-                calendar.set(year, month, dayOfMonth);
+            public void onPositiveButtonClick(Long selection) {
+                calendar.setTimeInMillis(selection);
                 dueDateText.setText(new FormatDate(calendar.getTimeInMillis()).format());
                 removeDueDate.setVisibility(View.VISIBLE);
                 todo.setDateSet(true);
                 todo.setMillis(calendar.getTimeInMillis());
             }
-        }, calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH));
-
+        });
 
         timePicker = new TimePickerDialog(this, new TimePickerDialog.OnTimeSetListener() {
             @Override
@@ -197,7 +201,7 @@ public class AddTodoActivity extends AppCompatActivity {
 
         @Override
         public void onClick(View v) {
-            datePicker.show();
+            datePicker.show(getSupportFragmentManager(),null);
         }
     }
 
@@ -209,7 +213,7 @@ public class AddTodoActivity extends AppCompatActivity {
                 return;
             } else if (isEditing) {
                 //Cancelling the previously set notification
-                if (todo.isNotificationSet()){
+                if (todo.isNotificationSet()) {
                     ScheduleNotification.cancel(AddTodoActivity.this, todo.getNid());
                     todo.setNotificationSet(false);
                 }
@@ -222,7 +226,7 @@ public class AddTodoActivity extends AppCompatActivity {
             }
 
             if (todo.isTimeSet()) {
-                ScheduleNotification.schedule(AddTodoActivity.this,todo.getNid(),todo.getMillis(),todo);
+                ScheduleNotification.schedule(AddTodoActivity.this, todo.getNid(), todo.getMillis(), todo);
                 todo.setNotificationSet(true);
             }
             getOnBackPressedDispatcher().onBackPressed();
