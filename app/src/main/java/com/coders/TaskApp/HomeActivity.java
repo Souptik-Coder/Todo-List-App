@@ -53,18 +53,9 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-//        Fade fade = new Fade();
-//        View decor = getWindow().getDecorView();
-//        fade.excludeTarget(decor.findViewById(R.id.action_bar_container), true);
-//        fade.excludeTarget(android.R.id.statusBarBackground, true);
-//        fade.excludeTarget(fab, true);
-//        getWindow().setEnterTransition(fade);
-//        getWindow().setExitTransition(fade);
-
-
         getAllId();
         setSupportActionBar(toolbar);
-        adapter = new CustomAdapter(this, empty_task_animation);
+        adapter = new CustomAdapter(empty_task_animation);
         recyclerView.setAdapter(adapter);
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(
                 new TodoTouchHelperCallback(ItemTouchHelper.DOWN | ItemTouchHelper.UP,
@@ -158,6 +149,7 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void OnClick(Todo item, CustomAdapter.ViewHolder holder) {
                 Intent intent = new Intent(HomeActivity.this, AddTodoActivity.class);
+                intent.setAction(Intent.ACTION_EDIT);
                 intent.putExtra("item", item);
                 ActivityOptionsCompat optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(HomeActivity.this, holder.itemView, "shared");
                 startActivity(intent, optionsCompat.toBundle());

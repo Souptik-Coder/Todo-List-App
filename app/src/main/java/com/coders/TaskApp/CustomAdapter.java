@@ -1,27 +1,21 @@
 package com.coders.TaskApp;
 
-import android.app.Activity;
-import android.content.Context;
-import android.content.Intent;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CompoundButton;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.ActivityOptionsCompat;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.coders.TaskApp.Utils.Constants;
-import com.coders.TaskApp.Utils.FormatDate;
-import com.coders.TaskApp.Utils.FormatTime;
+import com.coders.TaskApp.Utils.DateTimeFormatter;
 import com.coders.TaskApp.models.Todo;
 import com.google.android.material.checkbox.MaterialCheckBox;
 
@@ -38,7 +32,7 @@ public class CustomAdapter extends ListAdapter<Todo, CustomAdapter.ViewHolder> i
 
         @Override
         public boolean areContentsTheSame(@NonNull Todo oldItem, @NonNull Todo newItem) {
-            return oldItem.getText().equals(newItem.getText()) && oldItem.getMillis() == newItem.getMillis()
+            return oldItem.getText().equals(newItem.getText()) && oldItem.getDueDate() == newItem.getDueDate()
                     && oldItem.isTimeSet() == newItem.isTimeSet() && oldItem.isDateSet() == newItem.isDateSet();
         }
     };
@@ -76,7 +70,7 @@ public class CustomAdapter extends ListAdapter<Todo, CustomAdapter.ViewHolder> i
         return filter;
     }
 
-    public CustomAdapter(Context context, LinearLayout emptyAnimation) {
+    public CustomAdapter(LinearLayout emptyAnimation) {
         super(DIFF_CALLBACK);
         this.emptyAnimation = emptyAnimation;
     }
@@ -121,25 +115,26 @@ public class CustomAdapter extends ListAdapter<Todo, CustomAdapter.ViewHolder> i
         }
 
         if (item.isDateSet()) {
-            holder.getDateTextView().setText(new FormatDate(item.getMillis()).format());
+            holder.getDateTextView().setText(DateTimeFormatter.formatDate(item.getDueDate()));
             holder.getDateTextView().setVisibility(View.VISIBLE);
         } else
             holder.getDateTextView().setVisibility(View.GONE);
 
         if (item.isTimeSet()) {
-            holder.getTimeTextView().setText(new FormatTime(item.getMillis()).format());
+//            holder.getTimeTextView().setText(new FormatTime(item.getMillis()).format());
             holder.getDateTextView().setVisibility(View.VISIBLE);
         } else
             holder.getTimeTextView().setVisibility(View.GONE);
     }
 
-    public void setTodoCallback(TodoCallback callback){
-        this.callback=callback;
+    public void setTodoCallback(TodoCallback callback) {
+        this.callback = callback;
     }
 
-    interface TodoCallback{
-        public void OnCheckboxClick(Todo item,boolean isChecked);
-        public void OnClick(Todo item,ViewHolder holder);
+    interface TodoCallback {
+        public void OnCheckboxClick(Todo item, boolean isChecked);
+
+        public void OnClick(Todo item, ViewHolder holder);
     }
 
     TodoCallback callback;
@@ -156,22 +151,22 @@ public class CustomAdapter extends ListAdapter<Todo, CustomAdapter.ViewHolder> i
             time = view.findViewById(R.id.time);
             date = view.findViewById(R.id.date);
             checkBox = view.findViewById(R.id.todo_checkbox);
-            if(callback!=null){
+            if (callback != null) {
                 view.setOnClickListener(v -> {
-                    callback.OnClick(getItem(getAdapterPosition()),this);
+                    callback.OnClick(getItem(getAdapterPosition()), this);
                 });
 
-               checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                   checkBox.setChecked(isChecked);
-                   if(isChecked)
-                       title.setText(Html.fromHtml
-                               ("<strike>" + title.getText() + "</strike>",
-                                       Html.FROM_HTML_OPTION_USE_CSS_COLORS));
-                   else
-                    title.setText(title.getText().toString());
+                checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                    checkBox.setChecked(isChecked);
+                    if (isChecked)
+                        title.setText(Html.fromHtml
+                                ("<strike>" + title.getText() + "</strike>",
+                                        Html.FROM_HTML_OPTION_USE_CSS_COLORS));
+                    else
+                        title.setText(title.getText().toString());
 
-                   callback.OnCheckboxClick(getItem(getAdapterPosition()),isChecked);
-               });
+                    callback.OnCheckboxClick(getItem(getAdapterPosition()), isChecked);
+                });
             }
         }
 
@@ -267,7 +262,7 @@ public class CustomAdapter extends ListAdapter<Todo, CustomAdapter.ViewHolder> i
                 Calendar today = Calendar.getInstance();
                 Calendar date = Calendar.getInstance();
                 for (Todo item : allTask) {
-                    date.setTimeInMillis(item.getMillis());
+                    date.setTimeInMillis(item.getDueDate());
 
                     if (today.get(Calendar.DAY_OF_YEAR) == date.get(Calendar.DAY_OF_YEAR))
                         filtered.add(item);
@@ -276,7 +271,7 @@ public class CustomAdapter extends ListAdapter<Todo, CustomAdapter.ViewHolder> i
                 Calendar today = Calendar.getInstance();
                 Calendar date = Calendar.getInstance();
                 for (Todo item : allTask) {
-                    date.setTimeInMillis(item.getMillis());
+                    date.setTimeInMillis(item.getDueDate());
 
                     if (today.get(Calendar.DAY_OF_YEAR) + 1 == date.get(Calendar.DAY_OF_YEAR))
                         filtered.add(item);

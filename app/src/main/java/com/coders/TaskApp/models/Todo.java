@@ -1,7 +1,6 @@
 package com.coders.TaskApp.models;
 
 import androidx.room.ColumnInfo;
-import androidx.room.Embedded;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
@@ -16,16 +15,19 @@ public class Todo implements Serializable {
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "Todo_id")
-    private  int uid;
+    private int uid;
 
     @ColumnInfo(name = "Todo_text")
     private String text;
 
     @ColumnInfo(name = "Todo_isCompleted")
-    private  boolean isCompleted;
+    private boolean isCompleted;
 
-    @ColumnInfo(name = "time_inMillis")
-    private long millis;
+    @ColumnInfo(name = "DueDate_inMillis")
+    private long dueDate;
+
+    @ColumnInfo(name = "Reminder_inMillis")
+    private long reminder;
 
     @ColumnInfo(name = "iSDateSet")
     private boolean isDateSet;
@@ -34,45 +36,46 @@ public class Todo implements Serializable {
     private boolean isTimeSet;
 
     @ColumnInfo(name = "notification_id")
-    private int nid=uid;
+    private int nid = uid;
 
     @ColumnInfo(name = "isNotificationSet")
     private boolean isNotificationSet;
 
-
-    public int getNid() {
-        return nid;
+    public int getUid() {
+        return uid;
     }
 
-    public void setNid(int nid) {
-        this.nid = nid;
+    public String getText() {
+        return text;
     }
 
-    public long getMillis() {
-        return millis;
+    public void setText(String text) {
+        this.text = text;
     }
 
-    public void setMillis(long millis) {
-        this.millis = millis;
+    public boolean isCompleted() {
+        return isCompleted;
     }
 
-    public boolean isNotificationSet() {
-        return isNotificationSet;
+    public void setCompleted(boolean completed) {
+        isCompleted = completed;
     }
 
-    public void setNotificationSet(boolean notificationSet) {
-        isNotificationSet = notificationSet;
+    public long getDueDate() {
+        return dueDate;
     }
 
-    public Todo() {
-        this.text = "";
-        this.isCompleted=false;
-        this.millis=0;
-        this.isDateSet=false;
-        this.isTimeSet=false;
-        isNotificationSet=false;
+    public void setDueDate(long dueDate) {
+        this.dueDate = dueDate;
     }
 
+    public long getReminder() {
+        return reminder;
+    }
+
+    public void setReminder(long reminder) {
+        this.reminder = reminder;
+    }
 
     public boolean isDateSet() {
         return isDateSet;
@@ -90,41 +93,38 @@ public class Todo implements Serializable {
         isTimeSet = timeSet;
     }
 
-    public Todo(Todo todo){
-        this.setUid(todo.getUid());
-        this.setText(todo.getText());
-        this.setCompleted(todo.isCompleted());
-        this.setMillis(todo.getMillis());
-        this.setDateSet(todo.isDateSet());
-        this.setTimeSet(todo.isTimeSet);
+    public int getNid() {
+        return nid;
     }
 
-    public boolean isCompleted() {
-        return isCompleted;
+    public void setNid(int nid) {
+        this.nid = nid;
     }
 
-    public void setCompleted(boolean completed) {
-        isCompleted = completed;
+    public boolean isNotificationSet() {
+        return isNotificationSet;
     }
 
-    public int getUid() {
-        return uid;
+    public void setNotificationSet(boolean notificationSet) {
+        isNotificationSet = notificationSet;
     }
 
-    public String getText() {
-        return text;
+    public Todo() {
+        this.text = "";
+        this.isCompleted = false;
+        this.dueDate = 0;
+        this.isDateSet = false;
+        this.isTimeSet = false;
+        isNotificationSet = false;
     }
 
-    public void setText(String text) {
-        this.text = text;
-    }
-
-    @Override
-    public String toString() {
-        return "Todo{" +
-                "uid=" + uid +
-                ", text='" + text + '\'' +
-                ", isCompleted=" + isCompleted +
-                '}';
-    }
+//    public Todo(Todo todo) {
+//        this.setUid(todo.getUid());
+//        this.setText(todo.getText());
+//        this.setCompleted(todo.isCompleted());
+//        this.setDueDate(todo.getDueDate());
+//        this.setDateSet(todo.isDateSet());
+//        this.setTimeSet(todo.isTimeSet);
+//        this.setNid(todo.getNid());
+//    }
 }

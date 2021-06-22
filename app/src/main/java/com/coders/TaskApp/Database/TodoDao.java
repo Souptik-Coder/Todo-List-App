@@ -24,7 +24,7 @@ public interface TodoDao {
     @Delete
     void delete(Todo todo);
 
-    @Query("SELECT * FROM Todo_table ORDER BY Todo_isCompleted ASC,time_inMillis ASC,iSDateSet ASC")
+    @Query("SELECT * FROM Todo_table ORDER BY Todo_isCompleted ASC,iSDateSet ASC")
     LiveData<List<Todo>> searchTodoByQuery();
 
    @Query("SELECT * FROM Todo_table WHERE Todo_id LIKE :uid")

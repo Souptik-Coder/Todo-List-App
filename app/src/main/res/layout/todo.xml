@@ -59,7 +59,7 @@
             android:drawableLeft="@drawable/notification_icon_small"
             android:drawablePadding="3dp"
             android:gravity="center_vertical"
-            android:text="9:00 AM"
+            android:text=""
             android:textSize="12sp"
             android:textStyle="bold" />
     </RelativeLayout>
