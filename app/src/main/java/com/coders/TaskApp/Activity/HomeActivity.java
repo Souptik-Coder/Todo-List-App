@@ -1,4 +1,4 @@
-package com.coders.TaskApp;
+package com.coders.TaskApp.Activity;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -16,7 +16,6 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.appcompat.widget.Toolbar;
-import androidx.coordinatorlayout.widget.CoordinatorLayout;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -24,25 +23,29 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.coders.TaskApp.Utils.Constants;
+import com.coders.TaskApp.Adapter.RecyclerViewItem;
+import com.coders.TaskApp.Adapter.TodoAdapter;
+import com.coders.TaskApp.R;
+import com.coders.TaskApp.Utils.TodoTouchHelperCallback;
+import com.coders.TaskApp.ViewModel.HomeActivityViewModel;
+import com.coders.TaskApp.models.Header;
 import com.coders.TaskApp.models.Todo;
 import com.getkeepsafe.taptargetview.TapTarget;
 import com.getkeepsafe.taptargetview.TapTargetSequence;
 import com.google.android.material.appbar.MaterialToolbar;
-import com.google.android.material.chip.ChipGroup;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 
 public class HomeActivity extends AppCompatActivity {
 
-    CoordinatorLayout coordinatorLayout;
-    ChipGroup filter;
     MaterialToolbar toolbar;
     SearchView search;
     RecyclerView recyclerView;
-    CustomAdapter adapter;
+    TodoAdapter adapter;
     FloatingActionButton fab;
     HomeActivityViewModel viewModel;
     LinearLayout empty_task_animation;
@@ -55,7 +58,7 @@ public class HomeActivity extends AppCompatActivity {
 
         getAllId();
         setSupportActionBar(toolbar);
-        adapter = new CustomAdapter(empty_task_animation);
+        adapter = new TodoAdapter();
         recyclerView.setAdapter(adapter);
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(
                 new TodoTouchHelperCallback(ItemTouchHelper.DOWN | ItemTouchHelper.UP,
@@ -68,36 +71,12 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onChanged(List<Todo> todos) {
                 if (FirstTime) return;
-                adapter.setAllTask(todos);
-                adapter.getFilter().filter(viewModel.getSearchQuery());
-                int id = filter.getCheckedChipId();
-
-                if (id == R.id.all)
-                    adapter.getCustomFilter().filter(Constants.ALL);
-                else if (id == R.id.today)
-                    adapter.getCustomFilter().filter(Constants.TODAY);
-                else if (id == R.id.tomorrow)
-                    adapter.getCustomFilter().filter(Constants.TOMORROW);
-                else if (id == R.id.completed)
-                    adapter.getCustomFilter().filter(Constants.COMPLETED);
-            }
-        });
-
-
-        filter.setOnCheckedChangeListener(new ChipGroup.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(ChipGroup group, int checkedId) {
-                if (checkedId == R.id.all) {
-                    adapter.getCustomFilter().filter(Constants.ALL);
-                } else if (checkedId == R.id.today) {
-                    adapter.getCustomFilter().filter(Constants.TODAY);
-                } else if (checkedId == R.id.tomorrow) {
-                    adapter.getCustomFilter().filter(Constants.TOMORROW);
-
-                } else if (checkedId == R.id.completed) {
-                    adapter.getCustomFilter().filter(Constants.COMPLETED);
-
+                if (todos.size() == 0) {
+                    empty_task_animation.setVisibility(View.VISIBLE);
+                } else {
+                    empty_task_animation.setVisibility(View.INVISIBLE);
                 }
+                adapter.submitList(getFinalList(todos));
             }
         });
 
@@ -106,7 +85,7 @@ public class HomeActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(HomeActivity.this, AddTodoActivity.class);
-                ActivityOptionsCompat optionsCompat = ActivityOptionsCompat.makeScaleUpAnimation(fab, 0, 0, 0, 0);
+                ActivityOptionsCompat optionsCompat = ActivityOptionsCompat.makeScaleUpAnimation(fab, (int) fab.getX(), (int) fab.getY(), fab.getMeasuredWidth(), fab.getMeasuredHeight());
                 startActivity(intent, optionsCompat.toBundle());
             }
         });
@@ -139,7 +118,7 @@ public class HomeActivity extends AppCompatActivity {
 
         }
 
-        adapter.setTodoCallback(new CustomAdapter.TodoCallback() {
+        adapter.setTodoCallback(new TodoAdapter.TodoCallback() {
             @Override
             public void OnCheckboxClick(Todo item, boolean isChecked) {
                 item.setCompleted(isChecked);
@@ -147,14 +126,63 @@ public class HomeActivity extends AppCompatActivity {
             }
 
             @Override
-            public void OnClick(Todo item, CustomAdapter.ViewHolder holder) {
+            public void OnClick(Todo item, TodoAdapter.ViewHolder holder) {
                 Intent intent = new Intent(HomeActivity.this, AddTodoActivity.class);
+                ActivityOptionsCompat optionsCompat = ActivityOptionsCompat.makeScaleUpAnimation(holder.itemView,
+                        (int) holder.itemView.getX(), (int) holder.itemView.getY(), (int) holder.itemView.getMeasuredWidth(), (int) holder.itemView.getMeasuredHeight());
                 intent.setAction(Intent.ACTION_EDIT);
                 intent.putExtra("item", item);
-                ActivityOptionsCompat optionsCompat = ActivityOptionsCompat.makeSceneTransitionAnimation(HomeActivity.this, holder.itemView, "shared");
-                startActivity(intent, optionsCompat.toBundle());
+                startActivity(intent,optionsCompat.toBundle());
             }
         });
+    }
+
+    private List<RecyclerViewItem> getFinalList(List<Todo> todos) {
+        boolean todaySet = false, tomorrowSet = false, overdueSet = false, upcomingSet = false, completedSet = false, noDateSet = false;
+        List<RecyclerViewItem> finalList = new ArrayList<>();
+        Calendar today = Calendar.getInstance();
+        Calendar itemDate = Calendar.getInstance();
+        for (Todo todo : todos) {
+            if (todo.isDateSet() && !todo.isCompleted()) {
+                itemDate.setTimeInMillis(todo.getDueDate());
+                if (itemDate.get(Calendar.DAY_OF_YEAR) == today.get(Calendar.DAY_OF_YEAR)) {
+                    if (!todaySet)
+                        finalList.add(new Header("Today"));
+                    finalList.add(todo);
+                    todaySet = true;
+                } else if (itemDate.get(Calendar.DAY_OF_YEAR) == today.get(Calendar.DAY_OF_YEAR) + 1) {
+                    if (!tomorrowSet)
+                        finalList.add(new Header("Tomorrow"));
+                    finalList.add(todo);
+                    tomorrowSet = true;
+                } else if (itemDate.get(Calendar.DAY_OF_YEAR) < today.get(Calendar.DAY_OF_YEAR)) {
+                    if (!overdueSet)
+                        finalList.add(new Header("Overdue"));
+                    finalList.add(todo);
+                    overdueSet = true;
+                } else if (itemDate.get(Calendar.DAY_OF_YEAR) > today.get(Calendar.DAY_OF_YEAR) + 1) {
+                    if (!upcomingSet)
+                        finalList.add(new Header("Upcoming"));
+                    finalList.add(todo);
+                    upcomingSet = true;
+                }
+            }
+
+            if (todo.isCompleted()) {
+                if (!completedSet)
+                    finalList.add(new Header("Completed"));
+                finalList.add(todo);
+                completedSet = true;
+            }
+
+            if (!todo.isDateSet() && !todo.isCompleted()) {
+                if (!noDateSet)
+                    finalList.add(new Header("No Date Set"));
+                finalList.add(todo);
+                noDateSet = true;
+            }
+        }
+        return finalList;
     }
 
 
@@ -318,7 +346,6 @@ public class HomeActivity extends AppCompatActivity {
     private void getAllId() {
         recyclerView = findViewById(R.id.todo);
         toolbar = findViewById(R.id.toolbar);
-        filter = findViewById(R.id.chip_group);
         fab = findViewById(R.id.floatingActionButton);
         empty_task_animation = findViewById(R.id.task_empty);
     }

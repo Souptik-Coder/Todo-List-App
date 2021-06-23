@@ -4,45 +4,59 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
+import com.coders.TaskApp.Adapter.RecyclerViewItem;
+
 import java.io.Serializable;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Entity(tableName = "Todo_table")
-public class Todo implements Serializable {
-
-    public void setUid(int uid) {
-        this.uid = uid;
-    }
+public class Todo implements Serializable, RecyclerViewItem {
 
     @PrimaryKey(autoGenerate = true)
-    @ColumnInfo(name = "Todo_id")
+    @ColumnInfo(name = "Todo_ID")
     private int uid;
-
-    @ColumnInfo(name = "Todo_text")
+    @ColumnInfo(name = "Todo_Text")
     private String text;
-
-    @ColumnInfo(name = "Todo_isCompleted")
+    @ColumnInfo(name = "Todo_IsCompleted")
     private boolean isCompleted;
-
-    @ColumnInfo(name = "DueDate_inMillis")
-    private long dueDate;
-
-    @ColumnInfo(name = "Reminder_inMillis")
-    private long reminder;
-
-    @ColumnInfo(name = "iSDateSet")
+    @ColumnInfo(name = "Todo_IsDateSet")
     private boolean isDateSet;
-
-    @ColumnInfo(name = "isTimeSet")
-    private boolean isTimeSet;
-
-    @ColumnInfo(name = "notification_id")
+    @ColumnInfo(name = "DueDate")
+    private long dueDate;
+    @ColumnInfo(name = "Reminder")
+    private long reminder;
+    @ColumnInfo(name = "Notification_ID")
     private int nid = uid;
 
-    @ColumnInfo(name = "isNotificationSet")
-    private boolean isNotificationSet;
+    public Todo() {
+        this.text = "";
+        this.isCompleted = false;
+        this.dueDate = 0;
+    }
+
+    public Todo(String text, boolean isCompleted, long dueDate, long reminder) {
+        this.text = text;
+        this.isCompleted = isCompleted;
+        this.dueDate = dueDate;
+        this.isDateSet = dueDate != 0;
+        this.reminder = reminder;
+    }
+
+    public Todo(int uid, String text, boolean isCompleted, long dueDate, long reminder) {
+        this.uid = uid;
+        this.text = text;
+        this.isCompleted = isCompleted;
+        this.dueDate = dueDate;
+        this.isDateSet = dueDate != 0;
+        this.reminder = reminder;
+    }
 
     public int getUid() {
         return uid;
+    }
+
+    public void setUid(int uid) {
+        this.uid = uid;
     }
 
     public String getText() {
@@ -86,11 +100,7 @@ public class Todo implements Serializable {
     }
 
     public boolean isTimeSet() {
-        return isTimeSet;
-    }
-
-    public void setTimeSet(boolean timeSet) {
-        isTimeSet = timeSet;
+        return reminder != 0;
     }
 
     public int getNid() {
@@ -102,29 +112,11 @@ public class Todo implements Serializable {
     }
 
     public boolean isNotificationSet() {
-        return isNotificationSet;
+        return nid != 0;
     }
 
-    public void setNotificationSet(boolean notificationSet) {
-        isNotificationSet = notificationSet;
+    @Override
+    public int getItemViewType() {
+        return 0;
     }
-
-    public Todo() {
-        this.text = "";
-        this.isCompleted = false;
-        this.dueDate = 0;
-        this.isDateSet = false;
-        this.isTimeSet = false;
-        isNotificationSet = false;
-    }
-
-//    public Todo(Todo todo) {
-//        this.setUid(todo.getUid());
-//        this.setText(todo.getText());
-//        this.setCompleted(todo.isCompleted());
-//        this.setDueDate(todo.getDueDate());
-//        this.setDateSet(todo.isDateSet());
-//        this.setTimeSet(todo.isTimeSet);
-//        this.setNid(todo.getNid());
-//    }
 }

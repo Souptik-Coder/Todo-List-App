@@ -1,4 +1,4 @@
-package com.coders.TaskApp;
+package com.coders.TaskApp.Activity;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
@@ -11,14 +11,16 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.coders.TaskApp.R;
+import com.coders.TaskApp.Repository.TaskRepository;
 import com.coders.TaskApp.Utils.DateTimeFormatter;
-import com.coders.TaskApp.Utils.ScheduleNotification;
-import com.coders.TaskApp.Utils.TimeConverter;
+import com.coders.TaskApp.ViewModel.AddTodoActivityViewModel;
 import com.coders.TaskApp.databinding.ActivityAddTodoBinding;
 import com.coders.TaskApp.models.Todo;
 import com.google.android.material.datepicker.MaterialDatePicker;
-import com.google.android.material.datepicker.MaterialPickerOnPositiveButtonClickListener;
 import com.google.android.material.timepicker.MaterialTimePicker;
+
+import java.util.Calendar;
 
 public class AddTodoActivity extends AppCompatActivity {
 
@@ -32,6 +34,7 @@ public class AddTodoActivity extends AppCompatActivity {
     boolean isEditing = false;
     AddTodoActivityViewModel viewModel;
     ActivityAddTodoBinding binding;
+    Calendar reminder = Calendar.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,13 +67,12 @@ public class AddTodoActivity extends AppCompatActivity {
         viewModel.getReminder().observe(this, new Observer<Long>() {
             @Override
             public void onChanged(Long aLong) {
-                Toast.makeText(AddTodoActivity.this, "val "+aLong, Toast.LENGTH_SHORT).show();
+                Toast.makeText(AddTodoActivity.this, "val " + aLong, Toast.LENGTH_SHORT).show();
                 if (aLong == 0.0) {
                     binding.removeReminderIcon.setVisibility(View.INVISIBLE);
                     binding.reminderDateTextView.setText(null);
                     binding.reminderTimeTextView.setText(null);
-                }
-                else {
+                } else {
                     binding.removeReminderIcon.setVisibility(View.VISIBLE);
                     binding.reminderDateTextView.setText(DateTimeFormatter.formatDate(aLong));
                     binding.reminderTimeTextView.setText(DateTimeFormatter.formatTime(aLong));
@@ -78,8 +80,19 @@ public class AddTodoActivity extends AppCompatActivity {
             }
         });
 
-        binding.saveTask.setOnClickListener(new SaveTaskListener());
-        binding.DueDateLayout.setOnClickListener(new DueDateOnclickListener());
+        binding.saveTask.setOnClickListener(v -> {
+            viewModel.setTask(binding.taskInputEdittext.getText().toString());
+            if (binding.taskInputEdittext.getText().toString().trim().isEmpty()) {
+                binding.taskInputLayout.setError("Task cannot be empty");
+                return;
+            } else if (isEditing)
+                viewModel.updateTask(todo);
+            else
+                viewModel.saveTask();
+            super.onBackPressed();
+        });
+
+        binding.DueDateLayout.setOnClickListener(v -> datePicker.show(getSupportFragmentManager(), null));
 
 
         binding.removeDueDateIcon.setOnClickListener(v -> {
@@ -91,8 +104,10 @@ public class AddTodoActivity extends AppCompatActivity {
         });
 
         editingIntent = getIntent();
-        if (editingIntent.getAction() != null && editingIntent.getAction().equals(Intent.ACTION_EDIT))
+        if (editingIntent.getAction() != null && editingIntent.getAction().equals(Intent.ACTION_EDIT)) {
+            binding.toolbar.setTitle("Edit Task");
             getEditingInfo();
+        }
 
         datePickerBuilder.setTitleText("Choose a date");
         datePicker = datePickerBuilder.build();
@@ -101,24 +116,26 @@ public class AddTodoActivity extends AppCompatActivity {
         });
 
 
-
-
         timePicker = timePickerBuilder.build();
         timePicker.addOnPositiveButtonClickListener(v -> {
-            viewModel.setReminder(viewModel.getReminder().getValue()+TimeConverter.HourToMillis(timePicker.getHour()) + TimeConverter.MinuteToMillis(timePicker.getMinute()));
+            reminder.set(Calendar.HOUR_OF_DAY, timePicker.getHour());
+            reminder.set(Calendar.MINUTE, timePicker.getMinute());
+            viewModel.setReminder(reminder.getTimeInMillis());
         });
+
+        timePicker.addOnNegativeButtonClickListener(v -> viewModel.setReminder((long) 0));
 
 
         binding.ReminderLayout.setOnClickListener(v -> {
             datePickerBuilder.setSelection(viewModel.getReminder().getValue() != 0 ? viewModel.getReminder().getValue()
                     : System.currentTimeMillis());
-            reminderDatePicker=datePickerBuilder.build();
-            reminderDatePicker.addOnPositiveButtonClickListener(selection ->{
-                    viewModel.setReminder(selection); timePicker.show(getSupportFragmentManager(), null);});
-            reminderDatePicker.show(getSupportFragmentManager(),null);
+            reminderDatePicker = datePickerBuilder.build();
+            reminderDatePicker.addOnPositiveButtonClickListener(selection -> {
+                reminder.setTimeInMillis(selection);
+                timePicker.show(getSupportFragmentManager(), null);
+            });
+            reminderDatePicker.show(getSupportFragmentManager(), null);
         });
-
-
     }
 
     @Override
@@ -128,7 +145,7 @@ public class AddTodoActivity extends AppCompatActivity {
         } else {
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
             builder.setMessage("Do you want to quit without saving?")
-                    .setPositiveButton("Ok", (dialog, which) -> onNavigateUp())
+                    .setPositiveButton("Ok", (dialog, which) -> super.onBackPressed())
                     .setNegativeButton("Cancel", (dialog, which) -> {
                     });
             builder.create().show();
@@ -149,7 +166,7 @@ public class AddTodoActivity extends AppCompatActivity {
     private void getEditingInfo() {
         isEditing = true;
         todo = (Todo) editingIntent.getSerializableExtra("item");
-        binding.taskInputEdittext.setText(todo.getText());
+        viewModel.setTask(todo.getText());
         if (todo.isDateSet()) {
             datePickerBuilder.setSelection(todo.getDueDate());
             viewModel.setDueDate(todo.getDueDate());
@@ -160,41 +177,4 @@ public class AddTodoActivity extends AppCompatActivity {
             viewModel.setReminder(todo.getReminder());
         }
     }
-
-    private class DueDateOnclickListener implements View.OnClickListener {
-
-        @Override
-        public void onClick(View v) {
-            datePicker.show(getSupportFragmentManager(), null);
-        }
-    }
-
-    private class SaveTaskListener implements View.OnClickListener {
-        @Override
-        public void onClick(View v) {
-            if (binding.taskInputEdittext.getText().toString().trim().isEmpty()) {
-                binding.taskInputLayout.setError("Task cannot be empty");
-                return;
-            } else if (isEditing) {
-                //Cancelling the previously set notification
-                if (todo.isNotificationSet()) {
-                    ScheduleNotification.cancel(AddTodoActivity.this, todo.getNid());
-                    todo.setNotificationSet(false);
-                }
-
-                todo.setText(binding.taskInputEdittext.getText().toString());
-                repository.update(todo);
-            } else {
-                todo.setText(binding.taskInputEdittext.getText().toString());
-                repository.insert(todo);
-            }
-
-            if (todo.isTimeSet()) {
-                ScheduleNotification.schedule(AddTodoActivity.this, todo.getNid(), todo.getReminder(), todo);
-                todo.setNotificationSet(true);
-            }
-            getOnBackPressedDispatcher().onBackPressed();
-        }
-    }
-
 }

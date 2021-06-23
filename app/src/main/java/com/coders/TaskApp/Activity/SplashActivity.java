@@ -1,4 +1,4 @@
-package com.coders.TaskApp;
+package com.coders.TaskApp.Activity;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -9,6 +9,8 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.coders.TaskApp.R;
 
 public class SplashActivity extends AppCompatActivity {
 
@@ -32,9 +34,6 @@ public class SplashActivity extends AppCompatActivity {
         icon.setAnimation(bottom);
 
         top.startNow();bottom.startNow();
-
-        TodoData todoData = new TodoData(this);
-        todoData.readData();
 
         Handler handler=new Handler();
         handler.postDelayed(new Runnable() {

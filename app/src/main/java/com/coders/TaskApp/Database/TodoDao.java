@@ -24,16 +24,16 @@ public interface TodoDao {
     @Delete
     void delete(Todo todo);
 
-    @Query("SELECT * FROM Todo_table ORDER BY Todo_isCompleted ASC,iSDateSet ASC")
+    @Query("SELECT * FROM Todo_table ORDER BY Todo_IsCompleted ASC,Todo_IsDateSet DESC,DueDate ASC")
     LiveData<List<Todo>> searchTodoByQuery();
 
-   @Query("SELECT * FROM Todo_table WHERE Todo_id LIKE :uid")
+   @Query("SELECT * FROM Todo_table WHERE Todo_ID LIKE :uid")
    Todo findTodoById(int uid);
 
    @Query("Delete FROM Todo_table")
     void deleteAll();
 
-   @Query("SELECT * FROM Todo_table ORDER BY Todo_id LIMIT :n ,1")
-    Todo getAtPosition(int n);
+//   @Query("SELECT * FROM Todo_table ORDER BY Todo ID LIMIT :n ,1")
+//    Todo getAtPosition(int n);
 
 }

@@ -8,8 +8,7 @@
     android:background="@color/colorPrimaryLight"
     app:layout_constraintStart_toStartOf="parent"
     app:layout_constraintTop_toTopOf="parent"
-    tools:context=".HomeActivity">
-
+    tools:context=".Activity.HomeActivity">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
@@ -21,77 +20,18 @@
         app:title="Todo List"
         app:titleTextColor="@color/white" />
 
-    <HorizontalScrollView
-        android:id="@+id/header"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/toolbar">
-
-        <com.google.android.material.chip.ChipGroup
-            android:id="@+id/chip_group"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="5dp"
-            app:checkedChip="@+id/all"
-            app:selectionRequired="true"
-            app:singleLine="true"
-            app:singleSelection="true">
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/all"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checkable="true"
-                android:text="All"
-                android:textColor="@color/colorPrimary"
-                app:chipEndPadding="10dp"
-                app:chipStartPadding="10dp" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/today"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checkable="true"
-                android:text="Today"
-                android:textColor="@color/colorPrimary"
-                app:chipEndPadding="10dp"
-                app:chipStartPadding="10dp" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/tomorrow"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checkable="true"
-                android:text="Tomorrow"
-                android:textColor="@color/colorPrimary"
-                app:chipEndPadding="10dp"
-                app:chipStartPadding="10dp" />
-
-            <com.google.android.material.chip.Chip
-                android:id="@+id/completed"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:checkable="true"
-                android:text="Completed"
-                android:textColor="@color/colorPrimary"
-                app:chipEndPadding="10dp"
-                app:chipStartPadding="10dp" />
-        </com.google.android.material.chip.ChipGroup>
-    </HorizontalScrollView>
-
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/constraint"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@+id/header"
-        android:background="@color/colorPrimaryLight">
+        android:layout_below="@+id/toolbar">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/todo"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:paddingTop="5dp"
-            android:paddingBottom="10dp"
+            android:clipToPadding="true"
+            android:padding="5dp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -129,7 +69,7 @@
                 android:layout_centerHorizontal="true"
                 android:layout_gravity="center"
                 android:gravity="center_horizontal"
-                android:text="       Nothing to do \n Add task to get started"
+                android:text="     Nothing to do \n Add task to get started"
                 android:textColor="@color/colorPrimaryDark"
                 android:textSize="18sp"
                 android:textStyle="bold" />

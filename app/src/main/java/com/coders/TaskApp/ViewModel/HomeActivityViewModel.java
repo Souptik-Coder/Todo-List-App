@@ -1,17 +1,18 @@
-package com.coders.TaskApp;
+package com.coders.TaskApp.ViewModel;
 
 import android.app.Application;
 
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 
+import com.coders.TaskApp.Repository.TaskRepository;
 import com.coders.TaskApp.models.Todo;
 
 import java.util.List;
 
 public class HomeActivityViewModel extends AndroidViewModel {
-    private TaskRepository taskRepository;
-    private LiveData<List<Todo>> allTask;
+    private final TaskRepository taskRepository;
+    private final LiveData<List<Todo>> allTask;
     private String searchQuery;
 
     public String getSearchQuery() {
@@ -29,7 +30,7 @@ public class HomeActivityViewModel extends AndroidViewModel {
         searchQuery="";
     }
 
-    LiveData<List<Todo>> getAllTask(){
+    public LiveData<List<Todo>> getAllTask(){
         return  allTask;
     }
 
