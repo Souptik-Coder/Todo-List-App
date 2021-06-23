@@ -9,8 +9,10 @@
     <color name="white">#FFFFFFFF</color>
     <color name="dark_grey">#A9A9A9</color>
 
-    <color name="colorPrimary">#6666ff</color>
-    <color name="colorPrimaryLight">#C8B3B3FF</color>
-    <color name="colorPrimaryDark">#3333ff</color>
-
+<!--    <color name="colorPrimary">#6666ff</color>-->
+<!--    <color name="colorPrimaryLight">#C8B3B3FF</color>-->
+<!--    <color name="colorPrimaryDark">#3333ff</color>-->
+    <color name="colorPrimary">#F9AA33</color>
+    <color name="colorPrimaryLight">#9BF1C889</color>
+    <color name="colorPrimaryDark">#FB9803</color>
 </resources>
