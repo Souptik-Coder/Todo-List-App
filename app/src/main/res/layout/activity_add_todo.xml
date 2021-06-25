@@ -18,7 +18,7 @@
             android:background="@color/colorPrimary"
             android:elevation="8dp"
             android:minHeight="?attr/actionBarSize"
-            android:theme="@style/mToolbar"
+            android:theme="@style/ToolbarTheme"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -95,7 +95,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_margin="5dp"
-                        android:src="@drawable/due_date_icon" />
+                        android:src="@drawable/due_date_icon"
+                        app:tint="@color/colorPrimaryDark" />
 
                     <TextView
                         android:id="@+id/dueDateTextView"
@@ -104,7 +105,7 @@
                         android:layout_centerVertical="true"
                         android:layout_marginHorizontal="20dp"
                         android:layout_toRightOf="@+id/dateIcon"
-                        android:hint="Due Date"
+                        android:hint="Add due date"
                         android:textSize="20sp" />
 
                     <ImageButton
@@ -119,11 +120,11 @@
                 </RelativeLayout>
 
                 <View
-                    android:layout_width="330dp"
+                    android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:layout_gravity="end"
                     android:layout_marginVertical="5dp"
-                    android:background="@color/dark_grey" />
+                    android:background="@color/colorPrimaryLight" />
 
                 <RelativeLayout
                     android:id="@+id/ReminderLayout"
@@ -141,7 +142,8 @@
                         android:layout_height="wrap_content"
                         android:layout_centerVertical="true"
                         android:layout_margin="5dp"
-                        android:src="@drawable/ic_outline_notifications_active_24" />
+                        android:src="@drawable/ic_alarm_add"
+                        app:tint="@color/colorPrimaryDark" />
 
                     <TextView
                         android:id="@+id/reminderTimeTextView"
@@ -151,7 +153,7 @@
                         android:layout_marginHorizontal="20dp"
                         android:layout_marginTop="5dp"
                         android:layout_toRightOf="@+id/set_time_icon"
-                        android:hint="Set Reminder"
+                        android:hint="Remind me"
                         android:textSize="20sp" />
 
                     <TextView
@@ -160,8 +162,8 @@
                         android:layout_height="wrap_content"
                         android:layout_below="@+id/reminderTimeTextView"
                         android:layout_marginHorizontal="20dp"
-                        android:layout_marginTop="5dp"
-                        android:layout_toRightOf="@+id/set_time_icon"
+                        android:layout_marginTop="8dp"
+                        android:layout_toEndOf="@+id/set_time_icon"
                         android:textSize="12sp" />
 
                     <ImageButton
@@ -215,19 +217,18 @@
 
         <View
             android:layout_width="match_parent"
-            android:layout_height="2dp"
-            android:background="@color/dark_grey"
-            app:layout_constraintBottom_toTopOf="@+id/createdTextview" />
+            android:layout_height="1dp"
+            android:background="@color/colorPrimaryDark"
+            app:layout_constraintBottom_toTopOf="@+id/createdOnTextview" />
 
         <TextView
-            android:id="@+id/createdTextview"
+            android:id="@+id/createdOnTextview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:padding="10dp"
-            android:text="Created at"
-            android:textColor="@color/black"
-            android:textStyle="bold"
+            android:text="Created on"
+            android:textColor="@color/colorPrimaryDark"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />

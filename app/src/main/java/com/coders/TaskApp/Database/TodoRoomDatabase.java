@@ -21,7 +21,7 @@ public abstract class TodoRoomDatabase extends RoomDatabase {
             synchronized (TodoRoomDatabase.class){
                 if(INSTANCE==null){
                     INSTANCE= Room.databaseBuilder(context.getApplicationContext(),TodoRoomDatabase.class,"Todo_Database")
-//                            .allowMainThreadQueries()
+                            .allowMainThreadQueries()
                             .build();
 
                 }

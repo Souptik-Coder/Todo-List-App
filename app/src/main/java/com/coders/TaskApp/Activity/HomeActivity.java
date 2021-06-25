@@ -15,7 +15,6 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityOptionsCompat;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
@@ -62,7 +61,7 @@ public class HomeActivity extends AppCompatActivity {
         recyclerView.setAdapter(adapter);
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(
                 new TodoTouchHelperCallback(ItemTouchHelper.DOWN | ItemTouchHelper.UP,
-                        ItemTouchHelper.RIGHT, adapter, this, findViewById(R.id.constraint)));
+                        ItemTouchHelper.RIGHT, adapter, this, findViewById(R.id.root)));
         itemTouchHelper.attachToRecyclerView(recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
@@ -81,40 +80,29 @@ public class HomeActivity extends AppCompatActivity {
         });
 
 
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(HomeActivity.this, AddTodoActivity.class);
-                ActivityOptionsCompat optionsCompat = ActivityOptionsCompat.makeScaleUpAnimation(fab, (int) fab.getX(), (int) fab.getY(), fab.getMeasuredWidth(), fab.getMeasuredHeight());
-                startActivity(intent, optionsCompat.toBundle());
-            }
+        fab.setOnClickListener(v -> {
+            Intent intent = new Intent(HomeActivity.this, AddTodoActivity.class);
+            ActivityOptionsCompat optionsCompat = ActivityOptionsCompat.makeScaleUpAnimation(fab, (int) fab.getX(), (int) fab.getY(), fab.getMeasuredWidth(), fab.getMeasuredHeight());
+            startActivity(intent, optionsCompat.toBundle());
         });
 
 
-        toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                int itemId = item.getItemId();
+        toolbar.setOnMenuItemClickListener(item -> {
+            int itemId = item.getItemId();
 
-                if (itemId == R.id.sort) {
-                    return true;
-                } else if (itemId == R.id.showInstruction) {
-                    ShowInstruction();
-                    return true;
-                }
-                return false;
+            if (itemId == R.id.sort) {
+                return true;
+            } else if (itemId == R.id.showInstruction) {
+                ShowInstruction();
+                return true;
             }
+            return false;
         });
 
 
         if (isFirstTime()) {
             FirstTime = true;
-            recyclerView.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    ShowInstruction();
-                }
-            }, 50);
+            recyclerView.postDelayed(() -> ShowInstruction(), 50);
 
         }
 
@@ -130,9 +118,9 @@ public class HomeActivity extends AppCompatActivity {
                 Intent intent = new Intent(HomeActivity.this, AddTodoActivity.class);
                 ActivityOptionsCompat optionsCompat = ActivityOptionsCompat.makeScaleUpAnimation(holder.itemView,
                         (int) holder.itemView.getX(), (int) holder.itemView.getY(), (int) holder.itemView.getMeasuredWidth(), (int) holder.itemView.getMeasuredHeight());
-                intent.setAction(Intent.ACTION_EDIT);
+                intent.setAction("Intent.ACTION_EDIT");
                 intent.putExtra("item", item);
-                startActivity(intent,optionsCompat.toBundle());
+                startActivity(intent, optionsCompat.toBundle());
             }
         });
     }

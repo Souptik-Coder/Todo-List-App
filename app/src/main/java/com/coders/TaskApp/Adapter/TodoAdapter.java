@@ -40,8 +40,8 @@ public class TodoAdapter extends ListAdapter<RecyclerViewItem, RecyclerView.View
             if (oldItem instanceof Todo && newItem instanceof Todo) {
                 Todo oldItem1 = (Todo) oldItem;
                 Todo newItem1 = (Todo) newItem;
-                return oldItem1.getText().equals(newItem1.getText()) && oldItem1.getDueDate() == newItem1.getDueDate()
-                        && oldItem1.isTimeSet() == newItem1.isTimeSet() && oldItem1.isDateSet() == newItem1.isDateSet();
+                return oldItem1.getText().equals(newItem1.getText()) && oldItem1.getDueDate() == newItem1.getDueDate() && oldItem1.isCompleted() == newItem1.isCompleted()
+                        && oldItem1.isTimeSet() == newItem1.isTimeSet() && oldItem1.isDateSet() == newItem1.isDateSet() && oldItem1.getNote().equals(newItem1.getNote());
             } else if (oldItem instanceof Header && newItem instanceof Header)
                 return ((Header) oldItem).title.equals(((Header) newItem).title);
             return false;
@@ -126,7 +126,7 @@ public class TodoAdapter extends ListAdapter<RecyclerViewItem, RecyclerView.View
             }
 
             if (item.isDateSet()) {
-                holder.getDateTextView().setText(DateTimeFormatter.formatDate(item.getDueDate()));
+//                holder.getDateTextView().setText(DateTimeFormatter.formatDate(item.getDueDate()));
                 holder.getDateTextView().setVisibility(View.VISIBLE);
             } else
                 holder.getDateTextView().setVisibility(View.GONE);
@@ -136,12 +136,14 @@ public class TodoAdapter extends ListAdapter<RecyclerViewItem, RecyclerView.View
             } else
                 holder.getTimeTextView().setVisibility(View.GONE);
 
-            if(!item.isDateSet() && item.isTimeSet()) {
-                holder.getTimeTextView().setVisibility(View.VISIBLE);
+            if (!item.isDateSet() && item.isTimeSet()) {
                 holder.getTimeTextView().setText(DateTimeFormatter.formatTime(item.getReminder()));
             }
+
+            if (!item.getNote().isEmpty())
+                holder.getNoteTextView().setVisibility(View.VISIBLE);
             else
-                holder.getTimeTextView().setVisibility(View.GONE);
+                holder.getNoteTextView().setVisibility(View.GONE);
         } else {
             HeaderViewHolder viewHolder = (HeaderViewHolder) holder0;
             Header header = (Header) getItem(position);
@@ -180,7 +182,7 @@ public class TodoAdapter extends ListAdapter<RecyclerViewItem, RecyclerView.View
     public class ViewHolder extends RecyclerView.ViewHolder {
         View view;
         MaterialCheckBox checkBox;
-        TextView title, date, time;
+        TextView title, date, time, note;
 
         public ViewHolder(View view) {
             super(view);
@@ -189,6 +191,7 @@ public class TodoAdapter extends ListAdapter<RecyclerViewItem, RecyclerView.View
             time = view.findViewById(R.id.time);
             date = view.findViewById(R.id.date);
             checkBox = view.findViewById(R.id.todo_checkbox);
+            note = view.findViewById(R.id.note);
             if (callback != null) {
                 view.setOnClickListener(v -> {
                     callback.OnClick((Todo) getItem(getAbsoluteAdapterPosition()), this);
@@ -209,6 +212,10 @@ public class TodoAdapter extends ListAdapter<RecyclerViewItem, RecyclerView.View
 
         public TextView getTodoTextView() {
             return title;
+        }
+
+        public TextView getNoteTextView() {
+            return note;
         }
 
         public TextView getDateTextView() {

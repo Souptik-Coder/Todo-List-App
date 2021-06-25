@@ -12,15 +12,19 @@ import com.coders.TaskApp.models.Todo;
 
 public class AddTodoActivityViewModel extends AndroidViewModel {
     private final MutableLiveData<String> task;
+    private final MutableLiveData<String> note;
     private final MutableLiveData<Long> dueDate, reminder;
     TaskRepository repository;
+    private long createdOn;
 
 
     public AddTodoActivityViewModel(@NonNull Application application) {
         super(application);
         task = new MutableLiveData<>("");
+        note = new MutableLiveData<>("");
         dueDate = new MutableLiveData<>(0L);
         reminder = new MutableLiveData<>(0L);
+        createdOn = System.currentTimeMillis();
         repository = new TaskRepository(application);
     }
 
@@ -30,6 +34,14 @@ public class AddTodoActivityViewModel extends AndroidViewModel {
 
     public void setTask(String task) {
         this.task.setValue(task);
+    }
+
+    public MutableLiveData<String> getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note.setValue(note);
     }
 
     public MutableLiveData<Long> getDueDate() {
@@ -48,20 +60,32 @@ public class AddTodoActivityViewModel extends AndroidViewModel {
         this.reminder.setValue(reminder);
     }
 
+    public long getCreatedOn() {
+        return createdOn;
+    }
+
+    public void setCreatedOn(long createdOn) {
+        this.createdOn = createdOn;
+    }
+
     public void saveTask() {
         Todo item = new Todo(task.getValue(), false, dueDate.getValue(), reminder.getValue());
+        item.setNote(note.getValue());
+        item.setCreatedOnMillis(createdOn);
         item.setNid(NotificationHelper.generateID());
-        repository.insert(new Todo(task.getValue(), false, dueDate.getValue(), reminder.getValue()));
-        if(item.isTimeSet())
-        NotificationHelper.schedule(getApplication(), item.getNid(), item.getText(), item.getReminder());
+        repository.insert(item);
+        if (item.isTimeSet())
+            NotificationHelper.schedule(getApplication(), item.getUid(), item.getReminder());
     }
 
     public void updateTask(Todo previous) {
-        Todo item = new Todo(previous.getUid(), task.getValue(), false, dueDate.getValue(), reminder.getValue());
+        Todo item = new Todo(previous.getUid(), task.getValue(), previous.isCompleted(), dueDate.getValue(), reminder.getValue());
+        item.setNote(note.getValue());
+        item.setCreatedOnMillis(createdOn);
         item.setNid(NotificationHelper.generateID());
         repository.update(item);
         NotificationHelper.cancel(getApplication(), previous.getNid());
-        if(item.isTimeSet())
-        NotificationHelper.schedule(getApplication(), item.getNid(), item.getText(), item.getReminder());
+        if (item.isTimeSet())
+            NotificationHelper.schedule(getApplication(), item.getUid(), item.getReminder());
     }
 }

@@ -12,7 +12,17 @@
         <activity
             android:name=".Activity.AddTodoActivity"
             android:parentActivityName=".Activity.HomeActivity"
-            android:theme="@style/MyAppTheme" />
+            android:theme="@style/MyAppTheme"
+            android:windowSoftInputMode="adjustPan">
+
+            <intent-filter>
+                <action android:name="android.intent.action.CREATE_REMINDER" />
+                <action android:name="android.intent.action.SEND" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+        </activity>
         <activity
             android:name=".Activity.SplashActivity"
             android:theme="@style/MyAppTheme">

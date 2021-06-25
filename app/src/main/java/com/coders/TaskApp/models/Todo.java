@@ -27,6 +27,10 @@ public class Todo implements Serializable, RecyclerViewItem {
     private long reminder;
     @ColumnInfo(name = "Notification_ID")
     private int nid = uid;
+    @ColumnInfo(name = "Note")
+    private String note;
+    @ColumnInfo(name = "created_on")
+    private long createdOnMillis;
 
     public Todo() {
         this.text = "";
@@ -49,6 +53,22 @@ public class Todo implements Serializable, RecyclerViewItem {
         this.dueDate = dueDate;
         this.isDateSet = dueDate != 0;
         this.reminder = reminder;
+    }
+
+    public long getCreatedOnMillis() {
+        return createdOnMillis;
+    }
+
+    public void setCreatedOnMillis(long createdOnMillis) {
+        this.createdOnMillis = createdOnMillis;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
     }
 
     public int getUid() {
