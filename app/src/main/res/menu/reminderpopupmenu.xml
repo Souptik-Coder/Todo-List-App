@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/same"
+        android:icon="@drawable/ic_alarm_add"
+        android:title="Same as due date (Choose time)" />
+    <item
+        android:id="@+id/today"
+        android:icon="@drawable/ic_alarm_add"
+        android:title="Later Today" />
+    <item
+        android:id="@+id/tomorrow"
+        android:icon="@drawable/ic_alarm_add"
+        android:title="Tomorrow (9 AM)" />
+    <item
+        android:id="@+id/pick"
+        android:icon="@drawable/ic_alarm_add"
+        android:title="Pick a date and time" />
+</menu>

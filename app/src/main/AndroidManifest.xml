@@ -10,13 +10,22 @@
         android:supportsRtl="true"
         android:theme="@style/MyAppTheme">
         <activity
-            android:name=".AddTodoActivity"
-            android:parentActivityName=".HomeActivity"
-            android:theme="@style/Theme.MaterialComponents.Light.NoActionBar"
-            android:windowSoftInputMode="adjustResize" />
+            android:name=".Activity.AddTodoActivity"
+            android:parentActivityName=".Activity.HomeActivity"
+            android:theme="@style/MyAppTheme"
+            android:windowSoftInputMode="adjustPan">
+
+            <intent-filter>
+                <action android:name="android.intent.action.CREATE_REMINDER" />
+                <action android:name="android.intent.action.SEND" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="text/plain" />
+            </intent-filter>
+        </activity>
         <activity
-            android:name=".SplashActivity"
-            android:theme="@style/MyAppTheme.Launch">
+            android:name=".Activity.SplashActivity"
+            android:theme="@style/MyAppTheme">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -24,14 +33,11 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".HomeActivity"
-            android:theme="@style/Theme.MaterialComponents.Light.NoActionBar" />
+            android:name=".Activity.HomeActivity"
+            android:theme="@style/MyAppTheme" />
 
         <receiver
-            android:name=".NotificationReceiver"
-            android:enabled="true" />
-        <receiver
-            android:name=".NotificationActionReceiver"
+            android:name=".Receiver.NotificationReceiver"
             android:enabled="true" />
     </application>
 

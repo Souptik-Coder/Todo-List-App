@@ -1,4 +1,4 @@
-package com.coders.TaskApp;
+package com.coders.TaskApp.Repository;
 
 import android.content.Context;
 
@@ -19,12 +19,12 @@ public class TaskRepository {
         todoDao = db.getTodoDao();
     }
 
-    LiveData<List<Todo>> getAllTask() {
+    public LiveData<List<Todo>> getAllTask() {
         allTodo = todoDao.searchTodoByQuery();
         return allTodo;
     }
 
-    void insert(Todo todo) {
+    public void insert(Todo todo) {
         Thread thread = new Thread(new Runnable() {
             @Override
             public void run() {
@@ -39,22 +39,12 @@ public class TaskRepository {
     }
 
    public void delete(Todo todo) {
-       Thread thread = new Thread(new Runnable() {
-           @Override
-           public void run() {
-               todoDao.delete(todo);
-           }
-       });
+       Thread thread = new Thread(() -> todoDao.delete(todo));
        thread.start();
     }
 
     public void update(Todo todo) {
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                todoDao.updateTodo(todo);
-            }
-        });
+        Thread thread = new Thread(() -> todoDao.updateTodo(todo));
         thread.start();
     }
 
