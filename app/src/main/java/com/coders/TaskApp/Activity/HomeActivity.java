@@ -1,54 +1,61 @@
 package com.coders.TaskApp.Activity;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewAnimationUtils;
+import android.view.ViewGroup;
+import android.view.Window;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.core.app.ActivityOptionsCompat;
-import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.coders.TaskApp.Adapter.RecyclerViewItem;
 import com.coders.TaskApp.Adapter.TodoAdapter;
 import com.coders.TaskApp.R;
+import com.coders.TaskApp.Utils.NotificationHelper;
 import com.coders.TaskApp.Utils.TodoTouchHelperCallback;
+import com.coders.TaskApp.Utils.Utils;
 import com.coders.TaskApp.ViewModel.HomeActivityViewModel;
-import com.coders.TaskApp.models.Header;
 import com.coders.TaskApp.models.Todo;
 import com.getkeepsafe.taptargetview.TapTarget;
 import com.getkeepsafe.taptargetview.TapTargetSequence;
 import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
+import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.material.snackbar.Snackbar;
 
 
 public class HomeActivity extends AppCompatActivity {
 
-    MaterialToolbar toolbar;
-    SearchView search;
+    MaterialToolbar toolbar, searchToolbar;
+    SearchView searchView;
     RecyclerView recyclerView;
     TodoAdapter adapter;
     FloatingActionButton fab;
     HomeActivityViewModel viewModel;
     LinearLayout empty_task_animation;
     boolean FirstTime;
+    int searchIconCenterX, searchIconCenterY;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,27 +63,52 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         getAllId();
+
         setSupportActionBar(toolbar);
-        adapter = new TodoAdapter();
+        setSearchToolbar();
+        adapter = new TodoAdapter(this);
         recyclerView.setAdapter(adapter);
-        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(
-                new TodoTouchHelperCallback(ItemTouchHelper.DOWN | ItemTouchHelper.UP,
-                        ItemTouchHelper.RIGHT, adapter, this, findViewById(R.id.root)));
+
+        TodoTouchHelperCallback todoTouchHelperCallback = new TodoTouchHelperCallback(0,
+                ItemTouchHelper.RIGHT, adapter, this);
+        todoTouchHelperCallback.setSwipeListener((viewHolder, direction) -> {
+            if (viewHolder instanceof TodoAdapter.ViewHolder && direction == ItemTouchHelper.RIGHT) {
+
+                int position = viewHolder.getAbsoluteAdapterPosition();
+                Todo item = (Todo) adapter.getCurrentList().get(position);
+                viewModel.delete(item);
+//                item.getParentHeader().removeChildItem(item);
+                Snackbar snackbar = Snackbar.make(findViewById(R.id.root), "Task deleted", Snackbar.LENGTH_LONG);
+                snackbar.setAction("Undo", v -> {
+                    viewModel.insert(item);
+//                    item.getParentHeader().addChildItem(item);
+                });
+                snackbar.addCallback(new BaseTransientBottomBar.BaseCallback<Snackbar>() {
+                    @Override
+                    public void onDismissed(Snackbar transientBottomBar, int event) {
+                        super.onDismissed(transientBottomBar, event);
+                        NotificationHelper.cancel(HomeActivity.this, item.getUid());
+                    }
+                });
+                snackbar.show();
+            }
+        });
+        ItemTouchHelper itemTouchHelper = new ItemTouchHelper(todoTouchHelperCallback);
         itemTouchHelper.attachToRecyclerView(recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         viewModel = new ViewModelProvider(this).get(HomeActivityViewModel.class);
-        viewModel.getAllTask().observe(this, new Observer<List<Todo>>() {
-            @Override
-            public void onChanged(List<Todo> todos) {
-                if (FirstTime) return;
-                if (todos.size() == 0) {
-                    empty_task_animation.setVisibility(View.VISIBLE);
-                } else {
-                    empty_task_animation.setVisibility(View.INVISIBLE);
-                }
-                adapter.submitList(getFinalList(todos));
+        viewModel.getAllTask().observe(this, todos -> {
+            if (FirstTime) return;
+            if (todos.size() == 0) {
+                empty_task_animation.setVisibility(View.VISIBLE);
+            } else {
+                empty_task_animation.setVisibility(View.INVISIBLE);
             }
+            new Utils(this).getFinalListAsync(todos, finalList -> {
+                adapter.setAllTask(finalList);
+                adapter.getFilter().filter(viewModel.getSearchQuery());
+            });
         });
 
 
@@ -84,19 +116,6 @@ public class HomeActivity extends AppCompatActivity {
             Intent intent = new Intent(HomeActivity.this, AddTodoActivity.class);
             ActivityOptionsCompat optionsCompat = ActivityOptionsCompat.makeScaleUpAnimation(fab, (int) fab.getX(), (int) fab.getY(), fab.getMeasuredWidth(), fab.getMeasuredHeight());
             startActivity(intent, optionsCompat.toBundle());
-        });
-
-
-        toolbar.setOnMenuItemClickListener(item -> {
-            int itemId = item.getItemId();
-
-            if (itemId == R.id.sort) {
-                return true;
-            } else if (itemId == R.id.showInstruction) {
-                ShowInstruction();
-                return true;
-            }
-            return false;
         });
 
 
@@ -125,67 +144,81 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 
-    private List<RecyclerViewItem> getFinalList(List<Todo> todos) {
-        boolean todaySet = false, tomorrowSet = false, overdueSet = false, upcomingSet = false, completedSet = false, noDateSet = false;
-        List<RecyclerViewItem> finalList = new ArrayList<>();
-        Calendar today = Calendar.getInstance();
-        Calendar itemDate = Calendar.getInstance();
-        for (Todo todo : todos) {
-            if (todo.isDateSet() && !todo.isCompleted()) {
-                itemDate.setTimeInMillis(todo.getDueDate());
-                if (itemDate.get(Calendar.DAY_OF_YEAR) == today.get(Calendar.DAY_OF_YEAR)) {
-                    if (!todaySet)
-                        finalList.add(new Header("Today"));
-                    finalList.add(todo);
-                    todaySet = true;
-                } else if (itemDate.get(Calendar.DAY_OF_YEAR) == today.get(Calendar.DAY_OF_YEAR) + 1) {
-                    if (!tomorrowSet)
-                        finalList.add(new Header("Tomorrow"));
-                    finalList.add(todo);
-                    tomorrowSet = true;
-                } else if (itemDate.get(Calendar.DAY_OF_YEAR) < today.get(Calendar.DAY_OF_YEAR)) {
-                    if (!overdueSet)
-                        finalList.add(new Header("Overdue"));
-                    finalList.add(todo);
-                    overdueSet = true;
-                } else if (itemDate.get(Calendar.DAY_OF_YEAR) > today.get(Calendar.DAY_OF_YEAR) + 1) {
-                    if (!upcomingSet)
-                        finalList.add(new Header("Upcoming"));
-                    finalList.add(todo);
-                    upcomingSet = true;
-                }
-            }
-
-            if (todo.isCompleted()) {
-                if (!completedSet)
-                    finalList.add(new Header("Completed"));
-                finalList.add(todo);
-                completedSet = true;
-            }
-
-            if (!todo.isDateSet() && !todo.isCompleted()) {
-                if (!noDateSet)
-                    finalList.add(new Header("No Date Set"));
-                finalList.add(todo);
-                noDateSet = true;
-            }
-        }
-        return finalList;
-    }
-
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu, menu);
-        MenuItem itemSearch = menu.findItem(R.id.search);
-        search = (SearchView) itemSearch.getActionView();
-        search.setQueryHint("Search...");
-        search.setMaxWidth(Integer.MAX_VALUE);
-        search.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+        return true;
+    }
+
+    @Override
+    public void onBackPressed() {
+        if (searchView.isIconified())
+            super.onBackPressed();
+        else
+            closeSearchToolbar();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.search) {
+            View menuView = findViewById(R.id.search);
+
+            int[] itemWindowLocation = new int[2];
+            menuView.getLocationInWindow(itemWindowLocation);
+
+            int[] toolbarWindowLocation = new int[2];
+            toolbar.getLocationInWindow(toolbarWindowLocation);
+
+            int itemX = itemWindowLocation[0] - toolbarWindowLocation[0];
+            int itemY = itemWindowLocation[1] - toolbarWindowLocation[1];
+            searchIconCenterX = itemX + menuView.getWidth() / 2;
+            searchIconCenterY = itemY + menuView.getHeight() / 2;
+            searchView.setIconified(false);
+
+            //Change status bar color to white
+            Window window = getWindow();
+            window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+            window.setStatusBarColor(getResources().getColor(R.color.white));
+
+            //change status bar icon color
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+                window.getDecorView().setSystemUiVisibility(View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR);
+
+
+            circleReveal(searchToolbar, searchIconCenterX, searchIconCenterY, true);
+            return true;
+        }
+        return false;
+    }
+
+    private void setSearchToolbar() {
+        searchToolbar.inflateMenu(R.menu.search);
+        searchToolbar.setNavigationIcon(R.drawable.ic_arrow_back);
+        searchToolbar.setNavigationOnClickListener(v -> closeSearchToolbar());
+
+        searchView = (SearchView) searchToolbar.getMenu().findItem(R.id.search_).getActionView();
+        searchView.setIconified(true);
+        searchView.setFocusable(true);
+        searchView.setQueryHint("Search...");
+        searchView.setMaxWidth(Integer.MAX_VALUE);
+
+        //remove search close button
+        ImageView icon = searchView.findViewById(androidx.appcompat.R.id.search_close_btn);
+        ViewGroup linearLayoutSearchView = (ViewGroup) icon.getParent();
+        linearLayoutSearchView.removeView(icon);
+
+        //remove search icon as hint
+        SearchView.SearchAutoComplete search = searchView.findViewById(androidx.appcompat.R.id.search_src_text);
+        search.setHint("Search...");
+
+        //remove default searchView underline
+        findViewById(androidx.appcompat.R.id.search_plate).setBackgroundColor(Color.TRANSPARENT);
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextSubmit(String query) {
-                search.clearFocus();
-                return true;
+                return false;
             }
 
             @Override
@@ -195,26 +228,56 @@ public class HomeActivity extends AppCompatActivity {
                 return true;
             }
         });
-        return super.onCreateOptionsMenu(menu);
+
     }
 
-//        search.setOnSearchClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-////                if (!search.isIconified()) {
-//////                    lottieAnimationView.pauseAnimation();
-////
-////                    appBarLayout.setExpanded(false, true);
-////                } else {
-//////                    Toast.makeText(MainActivity.this, "Close", Toast.LENGTH_SHORT).show();
-//////                    lottieAnimationView.playAnimation();
-////
-////                    appBarLayout.setExpanded(true, true);
-//                }
-//            }
-//        });
-//        return true;
+    private void closeSearchToolbar() {
+        circleReveal(searchToolbar, searchIconCenterX, searchIconCenterY, false);
 
+        searchView.clearFocus();
+        searchView.setIconified(true);
+        //restore status bar color
+        Window window = getWindow();
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        window.setStatusBarColor(getResources().getColor(R.color.colorPrimary));
+
+        //restore status bar icon color
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+            window.getDecorView().setSystemUiVisibility(0);
+    }
+
+
+    public void circleReveal(View myView, int cx, int cy, boolean isForward) {
+
+        Animator anim;
+        float radius = Math.max(cx, cy);
+        if (isForward)
+            anim = ViewAnimationUtils.createCircularReveal(myView, cx, cy, 0, radius);
+        else
+            anim = ViewAnimationUtils.createCircularReveal(myView, cx, cy, radius, 0);
+
+        anim.setDuration((long) 400);
+
+        // make the view invisible when the animation is done
+        anim.addListener(new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                if (!isForward) {
+                    super.onAnimationEnd(animation);
+                    myView.setVisibility(View.INVISIBLE);
+                }
+            }
+        });
+
+        // make the view visible and start the animation
+        if (isForward)
+            myView.setVisibility(View.VISIBLE);
+
+        // start the animation
+        anim.start();
+
+    }
 
     private void ShowInstruction() {
 
@@ -336,5 +399,6 @@ public class HomeActivity extends AppCompatActivity {
         toolbar = findViewById(R.id.toolbar);
         fab = findViewById(R.id.floatingActionButton);
         empty_task_animation = findViewById(R.id.task_empty);
+        searchToolbar = findViewById(R.id.search_toolbar);
     }
 }

@@ -2,12 +2,12 @@ package com.coders.TaskApp.models;
 
 import androidx.room.ColumnInfo;
 import androidx.room.Entity;
+import androidx.room.Ignore;
 import androidx.room.PrimaryKey;
 
 import com.coders.TaskApp.Adapter.RecyclerViewItem;
 
 import java.io.Serializable;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Entity(tableName = "Todo_table")
 public class Todo implements Serializable, RecyclerViewItem {
@@ -139,4 +139,5 @@ public class Todo implements Serializable, RecyclerViewItem {
     public int getItemViewType() {
         return 0;
     }
+
 }

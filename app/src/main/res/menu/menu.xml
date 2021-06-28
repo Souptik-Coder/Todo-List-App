@@ -5,8 +5,7 @@
     android:id="@+id/search"
     android:icon="@drawable/search_icon"
     android:title="Search"
-    app:showAsAction="always|collapseActionView"
-    app:actionViewClass="androidx.appcompat.widget.SearchView"/>
+    app:showAsAction="always"/>
 
    <item
        android:id="@+id/overflow"

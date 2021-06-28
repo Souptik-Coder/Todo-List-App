@@ -1,11 +1,14 @@
 package com.coders.TaskApp.Adapter;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Filter;
 import android.widget.Filterable;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -31,7 +34,7 @@ public class TodoAdapter extends ListAdapter<RecyclerViewItem, RecyclerView.View
                 Todo newItem1 = (Todo) newItem;
                 return oldItem1.getUid() == newItem1.getUid();
             } else if (oldItem instanceof Header && newItem instanceof Header)
-                return ((Header) oldItem).title.equals(((Header) newItem).title);
+                return ((Header) oldItem).id == ((Header) newItem).id;
             return false;
         }
 
@@ -43,10 +46,12 @@ public class TodoAdapter extends ListAdapter<RecyclerViewItem, RecyclerView.View
                 return oldItem1.getText().equals(newItem1.getText()) && oldItem1.getDueDate() == newItem1.getDueDate() && oldItem1.isCompleted() == newItem1.isCompleted()
                         && oldItem1.isTimeSet() == newItem1.isTimeSet() && oldItem1.isDateSet() == newItem1.isDateSet() && oldItem1.getNote().equals(newItem1.getNote());
             } else if (oldItem instanceof Header && newItem instanceof Header)
-                return ((Header) oldItem).title.equals(((Header) newItem).title);
+                return ((Header) oldItem).title.equals(((Header) newItem).title) &&
+                        ((Header) oldItem).getChildItems().size() == ((Header) newItem).getChildItems().size();
             return false;
         }
     };
+    private final Context context;
 
     TodoCallback callback;
     private List<RecyclerViewItem> allTask;
@@ -59,13 +64,17 @@ public class TodoAdapter extends ListAdapter<RecyclerViewItem, RecyclerView.View
                 filtered.addAll(allTask);
 
             else {
-
+                Header previous = null;
                 for (RecyclerViewItem item1 : allTask) {
                     if (item1 instanceof Todo) {
                         Todo item = (Todo) item1;
-                        if (item.getText().toLowerCase().contains(constraint.toString().toLowerCase()))
+                        if (item.getText().toLowerCase().contains(constraint.toString().toLowerCase())) {
+                            if (!filtered.contains(previous))
+                                filtered.add(previous);
                             filtered.add(item);
-                    }
+                        }
+                    } else
+                        previous = (Header) item1;
                 }
             }
 
@@ -80,9 +89,13 @@ public class TodoAdapter extends ListAdapter<RecyclerViewItem, RecyclerView.View
         }
     };
 
-
-    public TodoAdapter() {
+    public TodoAdapter(Context context) {
         super(DIFF_CALLBACK);
+        this.context=context;
+    }
+
+    public void setAllTask(List<RecyclerViewItem> allTask) {
+        this.allTask = allTask;
     }
 
     @Override
@@ -147,7 +160,7 @@ public class TodoAdapter extends ListAdapter<RecyclerViewItem, RecyclerView.View
         } else {
             HeaderViewHolder viewHolder = (HeaderViewHolder) holder0;
             Header header = (Header) getItem(position);
-            viewHolder.header.setText(header.title);
+            viewHolder.headerTitle.setText(header.title);
         }
 
     }
@@ -174,9 +187,9 @@ public class TodoAdapter extends ListAdapter<RecyclerViewItem, RecyclerView.View
     }
 
     public interface TodoCallback {
-        public void OnCheckboxClick(Todo item, boolean isChecked);
+        void OnCheckboxClick(Todo item, boolean isChecked);
 
-        public void OnClick(Todo item, ViewHolder holder);
+        void OnClick(Todo item, ViewHolder holder);
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
@@ -193,9 +206,7 @@ public class TodoAdapter extends ListAdapter<RecyclerViewItem, RecyclerView.View
             checkBox = view.findViewById(R.id.todo_checkbox);
             note = view.findViewById(R.id.note);
             if (callback != null) {
-                view.setOnClickListener(v -> {
-                    callback.OnClick((Todo) getItem(getAbsoluteAdapterPosition()), this);
-                });
+                view.setOnClickListener(v -> callback.OnClick((Todo) getItem(getAbsoluteAdapterPosition()), this));
 
                 checkBox.setOnCheckedChangeListener((buttonView, isChecked) -> {
                     checkBox.setChecked(isChecked);
@@ -232,12 +243,33 @@ public class TodoAdapter extends ListAdapter<RecyclerViewItem, RecyclerView.View
 
     }
 
-    public class HeaderViewHolder extends RecyclerView.ViewHolder {
-        TextView header;
+    public class HeaderViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        TextView headerTitle;
+        ImageView icon;
 
         public HeaderViewHolder(@NonNull View itemView) {
             super(itemView);
-            header = itemView.findViewById(R.id.header);
+            headerTitle = itemView.findViewById(R.id.header);
+            icon = itemView.findViewById(R.id.icon);
+            itemView.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View v) {
+            List<RecyclerViewItem> currentList = new ArrayList<>(getCurrentList());
+            Header header = (Header) currentList.get(getAbsoluteAdapterPosition());
+            header.isExpanded = !header.isExpanded;
+            SharedPreferences preferences = context.getSharedPreferences("Header",Context.MODE_PRIVATE);
+            preferences.edit().putBoolean(header.id+"",header.isExpanded).apply();
+
+            if (!header.isExpanded) {
+                currentList.removeAll(header.getChildItems());
+                icon.animate().rotation(-90).start();
+            } else {
+                currentList.addAll(getAbsoluteAdapterPosition() + 1, header.getChildItems());
+                icon.animate().rotation(0).start();
+            }
+            submitList(currentList);
         }
     }
 }

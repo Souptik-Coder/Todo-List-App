@@ -15,23 +15,23 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.coders.TaskApp.Adapter.TodoAdapter;
 import com.coders.TaskApp.R;
 import com.coders.TaskApp.Repository.TaskRepository;
-import com.coders.TaskApp.models.Todo;
-import com.google.android.material.snackbar.BaseTransientBottomBar;
-import com.google.android.material.snackbar.Snackbar;
 
 public class TodoTouchHelperCallback extends ItemTouchHelper.SimpleCallback {
 
     TodoAdapter adapter;
     Context context;
-    View parent;
     TaskRepository repository;
+    OnSwipeListener onSwipeListener;
 
-    public TodoTouchHelperCallback(int dragDirs, int swipeDirs, TodoAdapter adapter, Context context, View parent) {
+    public TodoTouchHelperCallback(int dragDirs, int swipeDirs, TodoAdapter adapter, Context context) {
         super(dragDirs, swipeDirs);
         this.adapter = adapter;
         this.context = context;
-        this.parent = parent;
         this.repository = new TaskRepository(context);
+    }
+
+    public void setSwipeListener(OnSwipeListener onSwipeListener) {
+        this.onSwipeListener = onSwipeListener;
     }
 
     @Override
@@ -60,7 +60,7 @@ public class TodoTouchHelperCallback extends ItemTouchHelper.SimpleCallback {
             int iconWidth = d.getIntrinsicWidth();
             int iconCentre = iconLeft + (iconWidth / 2);
 
-            if (left + ((int) dX) > left +iconWidth +iconMargin+20) {
+            if (left + ((int) dX) > left + iconWidth + iconMargin + 20) {
                 d.setBounds(iconLeft, iconTop, iconRight, iconBottom);
                 d.draw(c);
             }
@@ -69,21 +69,11 @@ public class TodoTouchHelperCallback extends ItemTouchHelper.SimpleCallback {
 
     @Override
     public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) {
-        if (viewHolder instanceof TodoAdapter.ViewHolder && direction == ItemTouchHelper.RIGHT) {
+        if (onSwipeListener != null)
+            onSwipeListener.onSwiped(viewHolder, direction);
+    }
 
-            int position = viewHolder.getAbsoluteAdapterPosition();
-            Todo item = (Todo) adapter.getCurrentList().get(position);
-            repository.delete(item);
-            Snackbar snackbar = Snackbar.make(parent, "Task deleted", Snackbar.LENGTH_LONG);
-            snackbar.setAction("Undo", v -> repository.insert(item));
-            snackbar.addCallback(new BaseTransientBottomBar.BaseCallback<Snackbar>() {
-                @Override
-                public void onDismissed(Snackbar transientBottomBar, int event) {
-                    super.onDismissed(transientBottomBar, event);
-                    NotificationHelper.cancel(context,item.getNid());
-                }
-            });
-            snackbar.show();
-        }
+    public interface OnSwipeListener {
+        void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction);
     }
 }
