@@ -25,7 +25,7 @@
             app:title="Todo List"
             app:titleTextColor="@color/white" />
 
-        <include layout="@layout/search_toolbar" android:visibility="invisible"/>
+        <include layout="@layout/search_toolbar" android:visibility="gone"/>
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/constraint"

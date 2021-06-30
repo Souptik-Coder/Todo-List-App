@@ -4,8 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.widget.Filter;
 
-import com.coders.TaskApp.Adapter.RecyclerViewItem;
 import com.coders.TaskApp.models.Header;
+import com.coders.TaskApp.models.RecyclerViewItem;
 import com.coders.TaskApp.models.Todo;
 
 import java.util.ArrayList;

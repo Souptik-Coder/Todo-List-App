@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.coders.TaskApp.R;
 import com.coders.TaskApp.Utils.DateTimeFormatter;
 import com.coders.TaskApp.models.Header;
+import com.coders.TaskApp.models.RecyclerViewItem;
 import com.coders.TaskApp.models.Todo;
 import com.google.android.material.checkbox.MaterialCheckBox;
 
@@ -64,17 +65,13 @@ public class TodoAdapter extends ListAdapter<RecyclerViewItem, RecyclerView.View
                 filtered.addAll(allTask);
 
             else {
-                Header previous = null;
                 for (RecyclerViewItem item1 : allTask) {
-                    if (item1 instanceof Todo) {
-                        Todo item = (Todo) item1;
-                        if (item.getText().toLowerCase().contains(constraint.toString().toLowerCase())) {
-                            if (!filtered.contains(previous))
-                                filtered.add(previous);
-                            filtered.add(item);
+                    if (item1 instanceof Header) {
+                        for (RecyclerViewItem todo : ((Header) item1).getChildItems()) {
+                            if (((Todo) todo).getText().toLowerCase().contains(constraint.toString().toLowerCase()))
+                                filtered.add(todo);
                         }
-                    } else
-                        previous = (Header) item1;
+                    }
                 }
             }
 
@@ -91,7 +88,7 @@ public class TodoAdapter extends ListAdapter<RecyclerViewItem, RecyclerView.View
 
     public TodoAdapter(Context context) {
         super(DIFF_CALLBACK);
-        this.context=context;
+        this.context = context;
     }
 
     public void setAllTask(List<RecyclerViewItem> allTask) {
@@ -161,6 +158,11 @@ public class TodoAdapter extends ListAdapter<RecyclerViewItem, RecyclerView.View
             HeaderViewHolder viewHolder = (HeaderViewHolder) holder0;
             Header header = (Header) getItem(position);
             viewHolder.headerTitle.setText(header.title);
+
+            if (header.isExpanded)
+                viewHolder.icon.setRotation(0f);
+            else
+                viewHolder.icon.setRotation(-90f);
         }
 
     }
@@ -259,8 +261,8 @@ public class TodoAdapter extends ListAdapter<RecyclerViewItem, RecyclerView.View
             List<RecyclerViewItem> currentList = new ArrayList<>(getCurrentList());
             Header header = (Header) currentList.get(getAbsoluteAdapterPosition());
             header.isExpanded = !header.isExpanded;
-            SharedPreferences preferences = context.getSharedPreferences("Header",Context.MODE_PRIVATE);
-            preferences.edit().putBoolean(header.id+"",header.isExpanded).apply();
+            SharedPreferences preferences = context.getSharedPreferences("Header", Context.MODE_PRIVATE);
+            preferences.edit().putBoolean(header.id + "", header.isExpanded).apply();
 
             if (!header.isExpanded) {
                 currentList.removeAll(header.getChildItems());
