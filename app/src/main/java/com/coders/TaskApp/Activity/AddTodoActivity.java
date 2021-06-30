@@ -54,7 +54,7 @@ public class AddTodoActivity extends AppCompatActivity {
         viewModel = new ViewModelProvider(this).get(AddTodoActivityViewModel.class);
         editingIntent = getIntent();
         if (editingIntent.getAction() != null && editingIntent.getAction().equals("Intent.ACTION_EDIT")) {
-            binding.toolbar.setTitle("Edit Task");
+            binding.toolbar.setTitle("Edit Todo");
             getEditingInfo();
         } else if (editingIntent.getAction() != null && editingIntent.getAction().equals(Intent.ACTION_SEND)) {
             if (editingIntent.hasExtra(Intent.EXTRA_TEXT))
