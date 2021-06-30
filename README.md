@@ -7,6 +7,8 @@ Use this app to:
 
 #### Runs on any device with minimum android version Lollipop (API level 21) ####
 
+### Download the app [here](https://github.com/Souptik-Coder/Todo-List-App/raw/feature/Todo%20List.apk)
+
 Here are some app screenshot:
 
 ##### Home #####
