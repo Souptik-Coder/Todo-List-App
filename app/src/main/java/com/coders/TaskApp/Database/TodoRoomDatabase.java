@@ -12,15 +12,13 @@ import com.coders.TaskApp.models.Todo;
 @Database(entities = {Todo.class}, version = 1)
 public abstract class TodoRoomDatabase extends RoomDatabase {
 
-    public abstract TodoDao getTodoDao();
+    private static volatile TodoRoomDatabase INSTANCE;
 
-    private static volatile  TodoRoomDatabase INSTANCE;
-
-    public static TodoRoomDatabase getInstance(Context context){
-        if(INSTANCE==null){
-            synchronized (TodoRoomDatabase.class){
-                if(INSTANCE==null){
-                    INSTANCE= Room.databaseBuilder(context.getApplicationContext(),TodoRoomDatabase.class,"Todo_Database")
+    public static TodoRoomDatabase getInstance(Context context) {
+        if (INSTANCE == null) {
+            synchronized (TodoRoomDatabase.class) {
+                if (INSTANCE == null) {
+                    INSTANCE = Room.databaseBuilder(context.getApplicationContext(), TodoRoomDatabase.class, "Todo_Database")
                             .allowMainThreadQueries()
                             .build();
 
@@ -30,5 +28,7 @@ public abstract class TodoRoomDatabase extends RoomDatabase {
 
         return INSTANCE;
     }
+
+    public abstract TodoDao getTodoDao();
 
 }

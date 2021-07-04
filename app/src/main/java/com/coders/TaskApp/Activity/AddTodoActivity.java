@@ -3,19 +3,24 @@ package com.coders.TaskApp.Activity;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.graphics.Color;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.text.Html;
 import android.view.Gravity;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.PopupMenu;
+import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.coders.TaskApp.R;
-import com.coders.TaskApp.Repository.TaskRepository;
 import com.coders.TaskApp.Utils.DateTimeFormatter;
 import com.coders.TaskApp.Utils.TimeConverter;
 import com.coders.TaskApp.Utils.Utils;
@@ -24,6 +29,7 @@ import com.coders.TaskApp.databinding.ActivityAddTodoBinding;
 import com.coders.TaskApp.models.Todo;
 import com.google.android.material.datepicker.MaterialDatePicker;
 import com.google.android.material.timepicker.MaterialTimePicker;
+import com.muddzdev.styleabletoast.StyleableToast;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
@@ -33,7 +39,6 @@ public class AddTodoActivity extends AppCompatActivity {
 
     Todo todo;
     Intent editingIntent;
-    TaskRepository repository;
     MaterialDatePicker<Long> datePicker, reminderDatePicker;
     MaterialDatePicker.Builder<Long> datePickerBuilder;
     MaterialTimePicker.Builder timePickerBuilder;
@@ -104,10 +109,24 @@ public class AddTodoActivity extends AppCompatActivity {
             if (binding.taskInputEdittext.getText().toString().trim().isEmpty()) {
                 binding.taskInputLayout.setError("Task cannot be empty");
                 return;
-            } else if (isEditing)
+            } else if (isEditing) {
                 viewModel.updateTask(todo);
-            else
+                new StyleableToast
+                        .Builder(this)
+                        .text("Task updated successfully")
+                        .textColor(Color.WHITE)
+                        .backgroundColor(ContextCompat.getColor(this, R.color.red))
+                        .show();
+            } else {
                 viewModel.saveTask();
+                new StyleableToast
+                        .Builder(this)
+                        .text("Task added successfully")
+                        .textColor(Color.WHITE)
+                        .backgroundColor(ContextCompat.getColor(this, R.color.red))
+                        .show();
+
+            }
             super.onBackPressed();
         });
 
@@ -144,6 +163,29 @@ public class AddTodoActivity extends AppCompatActivity {
         timePicker.addOnNegativeButtonClickListener(v -> viewModel.setReminder((long) 0));
         binding.ReminderLayout.setOnClickListener(v -> showReminderPopUpMenu());
     }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.add_todo_activity_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.delete) {
+            if (isEditing)
+                viewModel.delete(todo);
+            finish();
+        } else if (item.getItemId() == R.id.share) {
+            Intent intent = new Intent(Intent.ACTION_SEND);
+            intent.setType("text/plain");
+            intent.putExtra(Intent.EXTRA_TEXT, viewModel.getTask().getValue());
+            startActivity(Intent.createChooser(intent, "Share this todo using"));
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
 
     private void showDueDatePopUpMenu() {
         Calendar today = Calendar.getInstance();
@@ -191,10 +233,11 @@ public class AddTodoActivity extends AppCompatActivity {
                 suffix = "PM";
             }
             menu.getItem(1).setTitle("Later Today (" + time + " " + suffix + ")");
-
-            if (viewModel.getDueDate().getValue() == 0)
-                menu.getItem(0).setEnabled(false);
         }
+        if (viewModel.getDueDate().getValue() == 0)
+            menu.getItem(0).setEnabled(false);
+        else
+            menu.getItem(0).setTitle(DateTimeFormatter.formatDate(viewModel.getDueDate().getValue()) + " (Choose time)");
 
         popupMenu.setOnMenuItemClickListener(item -> {
             if (item.getItemId() == R.id.today) {
@@ -265,7 +308,6 @@ public class AddTodoActivity extends AppCompatActivity {
     private void init() {
         datePickerBuilder = MaterialDatePicker.Builder.datePicker();
         timePickerBuilder = new MaterialTimePicker.Builder();
-        repository = new TaskRepository(this);
         todo = new Todo();
         setSupportActionBar(binding.toolbar);
         if (getSupportActionBar() != null)

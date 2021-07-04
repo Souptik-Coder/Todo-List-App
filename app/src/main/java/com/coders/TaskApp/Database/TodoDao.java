@@ -27,10 +27,10 @@ public interface TodoDao {
     @Query("SELECT * FROM Todo_table ORDER BY Todo_IsCompleted ASC,Todo_IsDateSet DESC,DueDate ASC")
     LiveData<List<Todo>> searchTodoByQuery();
 
-   @Query("SELECT * FROM Todo_table WHERE Todo_ID LIKE :uid")
-   Todo findTodoById(int uid);
+    @Query("SELECT * FROM Todo_table WHERE Notification_ID LIKE :nid")
+    Todo findTodoByNotificationId(int nid);
 
-   @Query("Delete FROM Todo_table")
+    @Query("Delete FROM Todo_table")
     void deleteAll();
 
 //   @Query("SELECT * FROM Todo_table ORDER BY Todo ID LIMIT :n ,1")

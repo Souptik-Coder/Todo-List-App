@@ -20,10 +20,10 @@ public class DateTimeFormatter {
     }
 
     public static String formatTime(long millis) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mm a",Locale.getDefault());
-        if(millis<System.currentTimeMillis())
+        SimpleDateFormat dateFormat = new SimpleDateFormat("hh:mm a", Locale.getDefault());
+        if (millis < System.currentTimeMillis())
             return "<span style=\"color:red\">" + dateFormat.format(millis) + "</span>";
         else
-        return dateFormat.format(millis);
+            return dateFormat.format(millis);
     }
 }

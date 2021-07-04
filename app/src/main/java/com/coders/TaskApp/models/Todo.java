@@ -11,28 +11,25 @@ public class Todo implements Serializable, RecyclerViewItem {
 
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = "Todo_ID")
-    private int uid;
+    private int uid = 0;
     @ColumnInfo(name = "Todo_Text")
-    private String text;
+    private String text = "";
     @ColumnInfo(name = "Todo_IsCompleted")
-    private boolean isCompleted;
+    private boolean isCompleted = false;
     @ColumnInfo(name = "Todo_IsDateSet")
-    private boolean isDateSet;
+    private boolean isDateSet = false;
     @ColumnInfo(name = "DueDate")
-    private long dueDate;
+    private long dueDate = 0;
     @ColumnInfo(name = "Reminder")
-    private long reminder;
+    private long reminder = 0;
     @ColumnInfo(name = "Notification_ID")
-    private int nid = uid;
+    private int nid = 0;
     @ColumnInfo(name = "Note")
-    private String note;
+    private String note = "";
     @ColumnInfo(name = "created_on")
-    private long createdOnMillis;
+    private long createdOnMillis = 0;
 
     public Todo() {
-        this.text = "";
-        this.isCompleted = false;
-        this.dueDate = 0;
     }
 
     public Todo(String text, boolean isCompleted, long dueDate, long reminder) {

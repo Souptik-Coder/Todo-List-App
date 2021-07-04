@@ -25,7 +25,7 @@ public class AddTodoActivityViewModel extends AndroidViewModel {
         dueDate = new MutableLiveData<>(0L);
         reminder = new MutableLiveData<>(0L);
         createdOn = System.currentTimeMillis();
-        repository = new TaskRepository(application);
+        repository = TaskRepository.getInstance(application);
     }
 
     public MutableLiveData<String> getTask() {
@@ -72,20 +72,24 @@ public class AddTodoActivityViewModel extends AndroidViewModel {
         Todo item = new Todo(task.getValue(), false, dueDate.getValue(), reminder.getValue());
         item.setNote(note.getValue());
         item.setCreatedOnMillis(createdOn);
-        item.setNid(NotificationHelper.generateID());
+        item.setNid(NotificationHelper.generateID(getApplication()));
         repository.insert(item);
         if (item.isTimeSet())
-            NotificationHelper.schedule(getApplication(), item.getUid(), item.getReminder());
+            NotificationHelper.schedule(getApplication().getApplicationContext(), item.getNid(), item.getReminder());
     }
 
     public void updateTask(Todo previous) {
         Todo item = new Todo(previous.getUid(), task.getValue(), previous.isCompleted(), dueDate.getValue(), reminder.getValue());
         item.setNote(note.getValue());
         item.setCreatedOnMillis(createdOn);
-        item.setNid(NotificationHelper.generateID());
+        item.setNid(NotificationHelper.generateID(getApplication()));
         repository.update(item);
         NotificationHelper.cancel(getApplication(), previous.getNid());
         if (item.isTimeSet())
-            NotificationHelper.schedule(getApplication(), item.getUid(), item.getReminder());
+            NotificationHelper.schedule(getApplication().getApplicationContext(), item.getNid(), item.getReminder());
+    }
+
+    public void delete(Todo todo) {
+        repository.delete(todo);
     }
 }

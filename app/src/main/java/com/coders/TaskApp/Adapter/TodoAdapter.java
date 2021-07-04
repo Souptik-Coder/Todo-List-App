@@ -136,7 +136,7 @@ public class TodoAdapter extends ListAdapter<RecyclerViewItem, RecyclerView.View
             }
 
             if (item.isDateSet()) {
-//                holder.getDateTextView().setText(DateTimeFormatter.formatDate(item.getDueDate()));
+                holder.getDateTextView().setText(Html.fromHtml(DateTimeFormatter.formatDate(item.getDueDate())));
                 holder.getDateTextView().setVisibility(View.VISIBLE);
             } else
                 holder.getDateTextView().setVisibility(View.GONE);
@@ -147,7 +147,7 @@ public class TodoAdapter extends ListAdapter<RecyclerViewItem, RecyclerView.View
                 holder.getTimeTextView().setVisibility(View.GONE);
 
             if (!item.isDateSet() && item.isTimeSet()) {
-                holder.getTimeTextView().setText(DateTimeFormatter.formatTime(item.getReminder()));
+                holder.getTimeTextView().setText(Html.fromHtml(DateTimeFormatter.formatTime(item.getReminder())));
             }
 
             if (!item.getNote().isEmpty())

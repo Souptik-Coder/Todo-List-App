@@ -4,29 +4,27 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 
 import com.coders.TaskApp.Receiver.NotificationReceiver;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-
 public class NotificationHelper {
 
     public static void schedule(Context context, int id, long reminder) {
-//        if(reminder<System.currentTimeMillis())
-//            return;
+        if (reminder < System.currentTimeMillis())
+            return;
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         Intent intent = new Intent(context, NotificationReceiver.class);
         intent.putExtra("id", id);
         intent.setAction("Reminder");
+        intent.addFlags(Intent.FLAG_RECEIVER_FOREGROUND);
+        intent.setPackage("com.coders.TaskApp.Receiver");
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, reminder, pendingIntent);
-        }
-        else
+        } else
             alarmManager.setExact(AlarmManager.RTC_WAKEUP, reminder, pendingIntent);
     }
 
@@ -35,12 +33,14 @@ public class NotificationHelper {
         Intent intent = new Intent(context, NotificationReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, notification_Id, intent, PendingIntent.FLAG_NO_CREATE);
 
-        if(pendingIntent!=null)
-        alarmManager.cancel(pendingIntent);
+        if (pendingIntent != null)
+            alarmManager.cancel(pendingIntent);
     }
 
-    public static int generateID(){
-        Date now = new Date();
-        return Integer.parseInt(new SimpleDateFormat("ddHHmmss",Locale.getDefault()).format(now));
+    public static int generateID(Context context) {
+        SharedPreferences preferences = context.getSharedPreferences("ID", Context.MODE_PRIVATE);
+        int id = preferences.getInt("Id", 0) + 1;
+        preferences.edit().putInt("Id", id).commit();
+        return id;
     }
 }

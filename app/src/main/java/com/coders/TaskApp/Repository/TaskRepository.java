@@ -3,20 +3,34 @@ package com.coders.TaskApp.Repository;
 import android.content.Context;
 
 import androidx.lifecycle.LiveData;
+import androidx.room.Room;
 
-import com.coders.TaskApp.models.Todo;
 import com.coders.TaskApp.Database.TodoDao;
 import com.coders.TaskApp.Database.TodoRoomDatabase;
+import com.coders.TaskApp.models.Todo;
 
 import java.util.List;
 
 public class TaskRepository {
     private TodoDao todoDao;
     private LiveData<List<Todo>> allTodo;
+    private static volatile TaskRepository INSTANCE;
 
-    public TaskRepository(Context context) {
+    private TaskRepository(Context context) {
         TodoRoomDatabase db = TodoRoomDatabase.getInstance(context);
         todoDao = db.getTodoDao();
+    }
+
+    public static TaskRepository getInstance(Context context){
+        if (INSTANCE == null) {
+            synchronized (TaskRepository.class) {
+                if (INSTANCE == null) {
+                    INSTANCE = new TaskRepository(context);
+                }
+            }
+        }
+
+        return INSTANCE;
     }
 
     public LiveData<List<Todo>> getAllTask() {
@@ -34,13 +48,13 @@ public class TaskRepository {
         thread.start();
     }
 
-   public Todo findTodoById(int uid) {
-        return todoDao.findTodoById(uid);
+    public Todo findTodoByNotificationId(int nid) {
+        return todoDao.findTodoByNotificationId(nid);
     }
 
-   public void delete(Todo todo) {
-       Thread thread = new Thread(() -> todoDao.delete(todo));
-       thread.start();
+    public void delete(Todo todo) {
+        Thread thread = new Thread(() -> todoDao.delete(todo));
+        thread.start();
     }
 
     public void update(Todo todo) {

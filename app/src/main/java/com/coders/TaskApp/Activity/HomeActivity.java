@@ -77,11 +77,9 @@ public class HomeActivity extends AppCompatActivity {
                 int position = viewHolder.getAbsoluteAdapterPosition();
                 Todo item = (Todo) adapter.getCurrentList().get(position);
                 viewModel.delete(item);
-//                item.getParentHeader().removeChildItem(item);
                 Snackbar snackbar = Snackbar.make(findViewById(R.id.root), "Task deleted", Snackbar.LENGTH_LONG);
                 snackbar.setAction("Undo", v -> {
                     viewModel.insert(item);
-//                    item.getParentHeader().addChildItem(item);
                 });
                 snackbar.addCallback(new BaseTransientBottomBar.BaseCallback<Snackbar>() {
                     @Override
@@ -99,7 +97,7 @@ public class HomeActivity extends AppCompatActivity {
 
         viewModel = new ViewModelProvider(this).get(HomeActivityViewModel.class);
         viewModel.getAllTask().observe(this, todos -> {
-            if (FirstTime) return;
+            if (FirstTime && todos.size() == 0) return;
             if (todos.size() == 0) {
                 empty_task_animation.setVisibility(View.VISIBLE);
             } else {
@@ -120,9 +118,18 @@ public class HomeActivity extends AppCompatActivity {
 
 
         if (isFirstTime()) {
+//            Intent intent=new Intent(getApplicationContext(), NotificationReceiver.class);
+//            intent.setAction("Action/Day Summary");
+//            PendingIntent pendingIntent=PendingIntent.getBroadcast(getApplication(),NotificationHelper.generateID(),intent,PendingIntent.FLAG_UPDATE_CURRENT);
+//            AlarmManager alarmManager=(AlarmManager) getSystemService(ALARM_SERVICE);
+//            Calendar calendar=Calendar.getInstance();
+//            calendar.set(Calendar.DAY_OF_YEAR,calendar.get(Calendar.DAY_OF_YEAR)+1);
+//            calendar.set(Calendar.HOUR_OF_DAY,8);
+//            calendar.set(Calendar.MINUTE,0);
+//            calendar.set(Calendar.SECOND,0);
+//            alarmManager.setInexactRepeating(AlarmManager.RTC,calendar.getTimeInMillis(),AlarmManager.INTERVAL_DAY,pendingIntent);
             FirstTime = true;
             recyclerView.postDelayed(() -> ShowInstruction(), 50);
-
         }
 
         adapter.setTodoCallback(new TodoAdapter.TodoCallback() {
@@ -257,7 +264,7 @@ public class HomeActivity extends AppCompatActivity {
         else
             anim = ViewAnimationUtils.createCircularReveal(myView, cx, cy, radius, 0);
 
-        anim.setDuration((long) 400);
+        anim.setDuration((long) 300);
 
         // make the view invisible when the animation is done
         anim.addListener(new AnimatorListenerAdapter() {

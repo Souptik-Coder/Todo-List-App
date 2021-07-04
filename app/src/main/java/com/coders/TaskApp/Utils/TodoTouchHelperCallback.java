@@ -27,7 +27,7 @@ public class TodoTouchHelperCallback extends ItemTouchHelper.SimpleCallback {
         super(dragDirs, swipeDirs);
         this.adapter = adapter;
         this.context = context;
-        this.repository = new TaskRepository(context);
+        this.repository = TaskRepository.getInstance(context);
     }
 
     public void setSwipeListener(OnSwipeListener onSwipeListener) {

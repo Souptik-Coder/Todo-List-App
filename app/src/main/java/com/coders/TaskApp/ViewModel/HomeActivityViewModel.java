@@ -15,6 +15,13 @@ public class HomeActivityViewModel extends AndroidViewModel {
     private final LiveData<List<Todo>> allTask;
     private String searchQuery;
 
+    public HomeActivityViewModel(Application application) {
+        super(application);
+        taskRepository = TaskRepository.getInstance(application);
+        allTask = taskRepository.getAllTask();
+        searchQuery = "";
+    }
+
     public String getSearchQuery() {
         return searchQuery;
     }
@@ -23,26 +30,19 @@ public class HomeActivityViewModel extends AndroidViewModel {
         this.searchQuery = searchQuery;
     }
 
-    public HomeActivityViewModel(Application application){
-        super(application);
-        taskRepository=new TaskRepository(application);
-        allTask=taskRepository.getAllTask();
-        searchQuery="";
+    public LiveData<List<Todo>> getAllTask() {
+        return allTask;
     }
 
-    public LiveData<List<Todo>> getAllTask(){
-        return  allTask;
-    }
-
-    public void insert(Todo todo){
+    public void insert(Todo todo) {
         taskRepository.insert(todo);
     }
 
-    public void delete(Todo todo){
+    public void delete(Todo todo) {
         taskRepository.delete(todo);
     }
 
-    public void update(Todo todo){
+    public void update(Todo todo) {
         taskRepository.update(todo);
     }
 

@@ -25,7 +25,9 @@
             app:title="Todo List"
             app:titleTextColor="@color/white" />
 
-        <include layout="@layout/search_toolbar" android:visibility="gone"/>
+        <include
+            layout="@layout/search_toolbar"
+            android:visibility="gone" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/constraint"
@@ -89,17 +91,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
-        android:layout_marginStart="18dp"
-        android:layout_marginTop="18dp"
-        android:layout_marginEnd="18dp"
-        android:layout_marginBottom="18dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginBottom="20dp"
         android:backgroundTint="@color/colorPrimary"
         android:clickable="true"
-        android:contentDescription="TODO"
+        android:contentDescription="Add Task"
         android:elevation="8dp"
         android:focusable="true"
         android:src="@drawable/add_todo_icon"
-        app:backgroundTint="@color/colorPrimary"
+        app:backgroundTint="@color/colorPrimaryDark"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:tint="@color/white" />

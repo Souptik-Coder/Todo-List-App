@@ -46,6 +46,10 @@ public class Utils {
         return calendar.get(Calendar.DAY_OF_YEAR) - Calendar.getInstance().get(Calendar.DAY_OF_YEAR) < 0;
     }
 
+    public static int randomIntFromInterval(int min, int max) { // min and max included
+        return (int) Math.floor(Math.random() * (max - min + 1) + min);
+    }
+
     public void getFinalListAsync(List<Todo> todos, onFinalListListener finalListListener) {
         Filter filter = new Filter() {
             @Override
