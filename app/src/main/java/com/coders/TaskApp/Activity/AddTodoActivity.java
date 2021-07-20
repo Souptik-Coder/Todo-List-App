@@ -123,7 +123,7 @@ public class AddTodoActivity extends AppCompatActivity {
                         .Builder(this)
                         .text("Task added successfully")
                         .textColor(Color.WHITE)
-                        .backgroundColor(ContextCompat.getColor(this, R.color.red))
+                        .backgroundColor(ContextCompat.getColor(this, R.color.colorPrimaryDark))
                         .show();
 
             }

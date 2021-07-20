@@ -5,8 +5,8 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Build;
 
+import com.coders.TaskApp.Activity.HomeActivity;
 import com.coders.TaskApp.Receiver.NotificationReceiver;
 
 public class NotificationHelper {
@@ -22,10 +22,10 @@ public class NotificationHelper {
         intent.setPackage("com.coders.TaskApp.Receiver");
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, reminder, pendingIntent);
-        } else
-            alarmManager.setExact(AlarmManager.RTC_WAKEUP, reminder, pendingIntent);
+        Intent showIntent = new Intent(context, HomeActivity.class);
+        PendingIntent pendingShowIntent = PendingIntent.getActivity(context, 0, showIntent, 0);
+        AlarmManager.AlarmClockInfo alarmClockInfo = new AlarmManager.AlarmClockInfo(reminder, pendingShowIntent);
+        alarmManager.setAlarmClock(alarmClockInfo, pendingIntent);
     }
 
     public static void cancel(Context context, int notification_Id) {

@@ -91,7 +91,7 @@ public class NotificationReceiver extends BroadcastReceiver {
 
                 message += "Tap to open";
                 builder.setSmallIcon(R.mipmap.app_icon)
-                        .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.mipmap.app_icon))
+                        .setLargeIcon(BitmapFactory.decodeResource(context.getResources(), R.drawable.app_icon3))
                         .setShowWhen(true)
                         .setContentTitle("Your reminder for \"" + todo.getText() + "\"")
                         .setContentText("Tap to open")
@@ -112,7 +112,7 @@ public class NotificationReceiver extends BroadcastReceiver {
                         .Builder(context)
                         .text("Task marked as completed")
                         .textColor(Color.WHITE)
-                        .backgroundColor(ContextCompat.getColor(context, R.color.red))
+                        .backgroundColor(ContextCompat.getColor(context, R.color.colorPrimaryDark))
                         .show();
                 todo.setCompleted(true);
                 repository.update(todo);
@@ -124,7 +124,7 @@ public class NotificationReceiver extends BroadcastReceiver {
                         .Builder(context)
                         .text("Task snoozed for 5 minutes")
                         .textColor(Color.WHITE)
-                        .backgroundColor(ContextCompat.getColor(context, R.color.red))
+                        .backgroundColor(ContextCompat.getColor(context, R.color.colorPrimaryDark))
                         .show();
                 break;
 
