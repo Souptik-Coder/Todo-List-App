@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -53,6 +54,7 @@ public class TodoAdapter extends ListAdapter<RecyclerViewItem, RecyclerView.View
         }
     };
     private final Context context;
+    private final LinearLayout emptyTaskAnimation;
 
     TodoCallback callback;
     private List<RecyclerViewItem> allTask;
@@ -86,9 +88,10 @@ public class TodoAdapter extends ListAdapter<RecyclerViewItem, RecyclerView.View
         }
     };
 
-    public TodoAdapter(Context context) {
+    public TodoAdapter(Context context, LinearLayout emptyTaskAnimation) {
         super(DIFF_CALLBACK);
         this.context = context;
+        this.emptyTaskAnimation = emptyTaskAnimation;
     }
 
     public void setAllTask(List<RecyclerViewItem> allTask) {
@@ -165,6 +168,16 @@ public class TodoAdapter extends ListAdapter<RecyclerViewItem, RecyclerView.View
                 viewHolder.icon.setRotation(-90f);
         }
 
+    }
+
+    @Override
+    public int getItemCount() {
+        int size = super.getItemCount();
+        if (size == 0)
+            emptyTaskAnimation.setVisibility(View.VISIBLE);
+        else
+            emptyTaskAnimation.setVisibility(View.INVISIBLE);
+        return size;
     }
 
     public void setTodoCallback(TodoCallback callback) {

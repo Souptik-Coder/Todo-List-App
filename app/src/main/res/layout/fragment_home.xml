@@ -1,42 +1,25 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/root"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@color/colorPrimaryLight"
+    tools:context=".Fragment.HomeFragment">
 
-    <RelativeLayout
-        android:id="@+id/coordinator"
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/coordinatorLayout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@color/colorPrimaryLight"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:context=".Activity.HomeActivity">
-
-        <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:background="@color/colorPrimary"
-            android:theme="@style/ToolbarTheme"
-            app:layout_collapseMode="pin"
-            app:title="Todo List"
-            app:titleTextColor="@color/white" />
-
-        <include
-            layout="@layout/search_toolbar"
-            android:visibility="gone" />
+        android:layout_height="match_parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/constraint"
+            android:id="@+id/constraintLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_below="@+id/toolbar">
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/todo"
+                android:id="@+id/recyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
                 android:clipToPadding="true"
@@ -48,7 +31,7 @@
                 tools:listitem="@layout/todo" />
 
             <LinearLayout
-                android:id="@+id/task_empty"
+                android:id="@+id/empty_task_animation"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
@@ -57,7 +40,7 @@
                 app:layout_constraintTop_toTopOf="parent">
 
                 <com.airbnb.lottie.LottieAnimationView
-                    android:id="@+id/empty_task_animation"
+                    android:id="@+id/lottieAnimation"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
@@ -90,21 +73,22 @@
                     android:textSize="18sp" />
             </LinearLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
-    </RelativeLayout>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/floatingActionButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_marginEnd="25dp"
-        android:layout_marginBottom="25dp"
-        android:backgroundTint="@color/colorPrimary"
-        android:clickable="true"
-        android:contentDescription="Add Task"
-        android:elevation="5dp"
-        android:focusable="true"
-        android:src="@drawable/add_todo_icon"
-        app:backgroundTint="@color/colorPrimaryDark"
-        app:tint="@color/white" />
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/floatingActionButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_marginEnd="25dp"
+            android:layout_marginBottom="25dp"
+            android:backgroundTint="@color/colorPrimary"
+            android:clickable="true"
+            android:contentDescription="Add Task"
+            android:elevation="5dp"
+            android:focusable="true"
+            android:src="@drawable/add_todo_icon"
+            app:backgroundTint="@color/colorPrimaryDark"
+            app:tint="@color/white" />
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+</FrameLayout>

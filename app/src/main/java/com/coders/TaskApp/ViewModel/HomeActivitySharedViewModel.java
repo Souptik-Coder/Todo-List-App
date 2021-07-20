@@ -4,30 +4,31 @@ import android.app.Application;
 
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
 
 import com.coders.TaskApp.Repository.TaskRepository;
 import com.coders.TaskApp.models.Todo;
 
 import java.util.List;
 
-public class HomeActivityViewModel extends AndroidViewModel {
+public class HomeActivitySharedViewModel extends AndroidViewModel {
     private final TaskRepository taskRepository;
     private final LiveData<List<Todo>> allTask;
-    private String searchQuery;
+    private final MutableLiveData<String> searchQuery;
 
-    public HomeActivityViewModel(Application application) {
+    public HomeActivitySharedViewModel(Application application) {
         super(application);
         taskRepository = TaskRepository.getInstance(application);
         allTask = taskRepository.getAllTask();
-        searchQuery = "";
+        searchQuery = new MutableLiveData<>("");
     }
 
-    public String getSearchQuery() {
+    public MutableLiveData<String> getSearchQuery() {
         return searchQuery;
     }
 
     public void setSearchQuery(String searchQuery) {
-        this.searchQuery = searchQuery;
+        this.searchQuery.postValue(searchQuery);
     }
 
     public LiveData<List<Todo>> getAllTask() {
