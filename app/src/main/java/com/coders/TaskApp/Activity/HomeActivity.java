@@ -19,7 +19,6 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -118,16 +117,6 @@ public class HomeActivity extends AppCompatActivity {
 
 
         if (isFirstTime()) {
-//            Intent intent=new Intent(getApplicationContext(), NotificationReceiver.class);
-//            intent.setAction("Action/Day Summary");
-//            PendingIntent pendingIntent=PendingIntent.getBroadcast(getApplication(),NotificationHelper.generateID(),intent,PendingIntent.FLAG_UPDATE_CURRENT);
-//            AlarmManager alarmManager=(AlarmManager) getSystemService(ALARM_SERVICE);
-//            Calendar calendar=Calendar.getInstance();
-//            calendar.set(Calendar.DAY_OF_YEAR,calendar.get(Calendar.DAY_OF_YEAR)+1);
-//            calendar.set(Calendar.HOUR_OF_DAY,8);
-//            calendar.set(Calendar.MINUTE,0);
-//            calendar.set(Calendar.SECOND,0);
-//            alarmManager.setInexactRepeating(AlarmManager.RTC,calendar.getTimeInMillis(),AlarmManager.INTERVAL_DAY,pendingIntent);
             FirstTime = true;
             recyclerView.postDelayed(() -> ShowInstruction(), 50);
         }
@@ -167,7 +156,9 @@ public class HomeActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (item.getItemId() == R.id.search) {
+        if (item.getItemId() == R.id.showInstruction) {
+            ShowInstruction();
+        } else if (item.getItemId() == R.id.search) {
             View menuView = findViewById(R.id.search);
 
             int[] itemWindowLocation = new int[2];
@@ -247,7 +238,7 @@ public class HomeActivity extends AppCompatActivity {
         Window window = getWindow();
         window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
         window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-        window.setStatusBarColor(getResources().getColor(R.color.colorPrimary));
+        window.setStatusBarColor(getResources().getColor(R.color.colorPrimaryDark));
 
         //restore status bar icon color
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
@@ -302,7 +293,6 @@ public class HomeActivity extends AppCompatActivity {
         recyclerView.postDelayed(new Runnable() {
             @Override
             public void run() {
-                Toast.makeText(HomeActivity.this, recyclerView.findViewHolderForAdapterPosition(0) + "", Toast.LENGTH_LONG).show();
                 firstTask[0] = recyclerView.findViewHolderForAdapterPosition(0).itemView;
 
                 new TapTargetSequence(HomeActivity.this).targets(
@@ -323,14 +313,6 @@ public class HomeActivity extends AppCompatActivity {
                                 .outerCircleAlpha(0.8f),
 
                         TapTarget.forToolbarMenuItem(toolbar, R.id.search, "Search", "Tap to search task")
-                                .drawShadow(true)
-                                .descriptionTextAlpha(0.7f)
-                                .cancelable(false)
-                                .transparentTarget(true)
-                                .outerCircleColorInt(Color.parseColor("#cc00cc"))
-                                .outerCircleAlpha(0.8f),
-
-                        TapTarget.forView(firstTask[0], "Rearrange!", "Long press drag and drop to rearrange task")
                                 .drawShadow(true)
                                 .descriptionTextAlpha(0.7f)
                                 .cancelable(false)

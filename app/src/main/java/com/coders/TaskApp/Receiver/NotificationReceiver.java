@@ -128,19 +128,6 @@ public class NotificationReceiver extends BroadcastReceiver {
                         .show();
                 break;
 
-//            case "Action/Day Summary":
-//                List<Todo> todos=repository.getAllTask().getValue();
-//                if (todos.size()==0)
-//                    return;
-//                else {
-//                    String title=""
-//                    for(Todo item:todos){
-//                        if(item.isTimeSet() && Utils.isDateToday(item.getDueDate()))
-//                            title+=item.getText()+"\n";
-//                    }
-//                }
-//                break;
-
             default:
                 Log.e("Receiver", intent.getAction());
         }

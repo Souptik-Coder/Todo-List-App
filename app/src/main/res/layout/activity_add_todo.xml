@@ -229,7 +229,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
-            android:fontFamily="@font/product_sans_bold_italic"
+            android:fontFamily="@font/product_sans_regular"
             android:padding="10dp"
             android:text="Created on"
             android:textColor="@color/colorPrimaryDark"

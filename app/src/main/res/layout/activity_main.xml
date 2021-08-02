@@ -22,6 +22,7 @@
             android:background="@color/colorPrimary"
             android:theme="@style/ToolbarTheme"
             app:layout_collapseMode="pin"
+            app:logo="@drawable/toolbar_logo"
             app:title="Todo List"
             app:titleTextColor="@color/white" />
 

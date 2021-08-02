@@ -115,7 +115,7 @@ public class AddTodoActivity extends AppCompatActivity {
                         .Builder(this)
                         .text("Task updated successfully")
                         .textColor(Color.WHITE)
-                        .backgroundColor(ContextCompat.getColor(this, R.color.red))
+                        .backgroundColor(ContextCompat.getColor(this, R.color.colorPrimaryDark))
                         .show();
             } else {
                 viewModel.saveTask();

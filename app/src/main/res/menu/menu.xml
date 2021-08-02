@@ -15,12 +15,6 @@
 
        <menu>
            <item
-               android:id="@+id/sort"
-               android:icon="@drawable/ic_baseline_sort_24"
-               android:title="Sort by date and time"
-               />
-
-           <item
                android:id="@+id/showInstruction"
                android:icon="@drawable/ic_baseline_slideshow_24"
                android:title="Show Instruction"
